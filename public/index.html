@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Trading App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-danger shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">⚡ Pokémon Trader</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto" id="nav-menu">
+          <li class="nav-item"><a class="nav-link active" href="#" onclick="mostrarSecao('colecao')">Minha Coleção</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="mostrarSecao('mercado')">Mercado de Trocas</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="mostrarSecao('batalha')">⚔️ Batalha</a></li>
+          <li class="nav-item"><a class="nav-link" href="/slides" target="_blank">📊 Slides</a></li>
+          <li class="nav-item"><a class="nav-link btn btn-outline-light ms-2 px-3" href="#" onclick="logout()">Sair</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Seção de Login/Cadastro -->
+  <section id="secao-auth" class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card shadow border-0">
+          <div class="card-body p-4">
+            <h3 class="text-center mb-4">🎮 Entrar no Sistema</h3>
+            <form id="form-login">
+              <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="login-email" required placeholder="treinador@pallet.com">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" class="form-control" id="login-senha" required>
+              </div>
+              <button type="submit" class="btn btn-danger w-100">Entrar</button>
+            </form>
+            <hr>
+            <p class="text-center text-muted">Não tem conta?</p>
+            <button class="btn btn-outline-success w-100" onclick="mostrarCadastro()">Criar Conta de Treinador</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-5 d-none" id="painel-cadastro">
+        <div class="card shadow border-0">
+          <div class="card-body p-4">
+            <h3 class="text-center mb-4">🆕 Novo Treinador</h3>
+            <form id="form-cadastro">
+              <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input type="text" class="form-control" id="cad-nome" required placeholder="Ash Ketchum">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="cad-email" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" class="form-control" id="cad-senha" required minlength="4">
+              </div>
+              <button type="submit" class="btn btn-success w-100">Cadastrar e Ganhar 3 Pokémons!</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção Principal (pós-login) -->
+  <main id="secao-app" class="container my-4 d-none">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 id="titulo-secao">Sua Coleção de Cards</h2>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNovoPokemon">+ Adicionar Card</button>
+    </div>
+
+    <!-- Coleção -->
+    <div id="secao-colecao">
+      <div class="row g-4" id="grid-pokemons"></div>
+    </div>
+
+    <!-- Mercado -->
+    <div id="secao-mercado" class="d-none">
+      <div class="row g-4" id="grid-mercado"></div>
+    </div>
+
+    <!-- Batalha -->
+    <div id="secao-batalha" class="d-none">
+      <div class="text-center">
+        <h3>⚔️ Arena de Batalha</h3>
+        <p class="text-muted">Selecione um Pokémon da sua coleção para desafiar um Pokémon Selvagem!</p>
+        <div class="row g-4" id="grid-batalha"></div>
+        <div id="resultado-batalha" class="mt-4"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Novo Pokémon -->
+  <div class="modal fade" id="modalNovoPokemon" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Registrar Novo Pokémon</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="form-novo-pokemon">
+            <div class="mb-3">
+              <label class="form-label">Nome</label>
+              <input type="text" class="form-control" id="nome" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" id="tipo" required>
+                <option value="Fogo">🔥 Fogo</option>
+                <option value="Água">💧 Água</option>
+                <option value="Planta">🌿 Planta</option>
+                <option value="Elétrico">⚡ Elétrico</option>
+                <option value="Normal">⭐ Normal</option>
+                <option value="Psíquico">🔮 Psíquico</option>
+                <option value="Dragão">🐉 Dragão</option>
+              </select>
+            </div>
+            <div class="row">
+              <div class="col-4 mb-3">
+                <label class="form-label">Nível</label>
+                <input type="number" class="form-control" id="nivel" value="1" min="1" max="100">
+              </div>
+              <div class="col-4 mb-3">
+                <label class="form-label">Ataque</label>
+                <input type="number" class="form-control" id="ataque" required min="1">
+              </div>
+              <div class="col-4 mb-3">
+                <label class="form-label">HP</label>
+                <input type="number" class="form-control" id="hp" required min="1">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">URL do Sprite</label>
+              <input type="url" class="form-control" id="sprite_url" placeholder="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png">
+            </div>
+            <button type="submit" class="btn btn-success w-100">Registrar Card</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center py-3 mt-5 bg-light">
+    <p class="text-muted mb-0">© 2026 Pokémon Trading App — Manual Full-Stack</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

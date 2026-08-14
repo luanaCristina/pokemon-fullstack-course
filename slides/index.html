@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 Apresentação - Desenvolvimento Web Full-Stack</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .slide {
+      display: none;
+      height: 100vh;
+      padding: 60px 80px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .slide.active { display: flex; flex-direction: column; justify-content: center; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .slide-cover {
+      background: linear-gradient(135deg, #dc3545, #fd7d24, #f8d030);
+      text-align: center;
+      color: #fff;
+    }
+
+    .slide-cover h1 { font-size: 3.5rem; font-weight: 800; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
+    .slide-cover h2 { font-size: 1.5rem; font-weight: 300; margin-top: 10px; }
+
+    .slide h2 { color: #f8d030; font-size: 2.2rem; margin-bottom: 30px; border-bottom: 3px solid #fd7d24; padding-bottom: 10px; display: inline-block; }
+    .slide h3 { color: #fd7d24; margin: 20px 0 10px; }
+    .slide p, .slide li { font-size: 1.25rem; line-height: 1.8; }
+    .slide ul { padding-left: 30px; }
+    .slide li { margin-bottom: 8px; }
+    .slide code { background: #16213e; padding: 2px 8px; border-radius: 4px; color: #f8d030; }
+
+    .code-block {
+      background: #0f3460;
+      border-left: 4px solid #f8d030;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      overflow-x: auto;
+      margin: 15px 0;
+      white-space: pre-wrap;
+    }
+
+    .diagram {
+      background: #16213e;
+      border: 2px solid #fd7d24;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 1rem;
+      margin: 20px 0;
+    }
+
+    /* Controles */
+    .controls {
+      position: fixed;
+      bottom: 30px;
+      right: 40px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .controls button {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .controls button:hover { background: #fd7d24; border-color: #fd7d24; }
+
+    .progress-bar-custom {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #dc3545, #fd7d24, #f8d030);
+      transition: width 0.3s ease;
+      z-index: 1000;
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 35px;
+      left: 40px;
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+
+    .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #16213e, #0f3460);
+      border: 1px solid #fd7d24;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 10px 0;
+    }
+
+    .emoji-big { font-size: 4rem; }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar-custom" id="progressBar"></div>
+<div class="slide-counter" id="slideCounter"></div>
+
+<!-- SLIDE 1: Capa -->
+<div class="slide slide-cover active" id="slide-1">
+  <div>
+    <p class="emoji-big">🌐</p>
+    <h1>Manual Integral de<br>Desenvolvimento Web Full-Stack</h1>
+    <h2>Prof. Dr. em Ciência da Computação</h2>
+    <p style="margin-top:30px;font-size:1.2rem;">Especialista em Desenvolvimento Web e Arquitetura Full-Stack</p>
+    <p style="margin-top:50px;opacity:0.8;">Use ← → ou clique nos botões para navegar</p>
+  </div>
+</div>
+
+<!-- SLIDE 2: Índice -->
+<div class="slide" id="slide-2">
+  <h2>📋 Conteúdo do Curso</h2>
+  <div class="two-cols">
+    <div>
+      <h3>Módulo 1</h3>
+      <ul>
+        <li>Fundamentos da Web</li>
+        <li>Arquitetura Cliente-Servidor</li>
+        <li>HTTP/HTTPS e DNS</li>
+        <li>Ambiente de Desenvolvimento</li>
+      </ul>
+      <h3>Módulo 2</h3>
+      <ul>
+        <li>HTML5 Semântico</li>
+        <li>Formulários e Validação</li>
+        <li>Acessibilidade</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Módulo 3</h3>
+      <ul>
+        <li>CSS3 e Box Model</li>
+        <li>Flexbox e Grid</li>
+        <li>Bootstrap 5</li>
+      </ul>
+      <h3>Módulo 4</h3>
+      <ul>
+        <li>Node.js + Express</li>
+        <li>MySQL e SQL</li>
+        <li>API RESTful (CRUD)</li>
+        <li>Projeto: Pokémon Trading App</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Arquitetura -->
+<div class="slide" id="slide-3">
+  <h2>🏗️ Arquitetura Cliente-Servidor</h2>
+  <div class="diagram">
+    [ CLIENTE (Navegador) ] ─── HTTP Request ───→ [ SERVIDOR (Node.js) ]<br><br>
+    │ HTML/CSS/JS              GET /api/pokemons         │ Express + MySQL<br><br>
+    [ CLIENTE ] ←── HTTP Response (JSON) ──── [ SERVIDOR ]
+  </div>
+  <div class="two-cols" style="margin-top:20px;">
+    <div class="highlight-box">
+      <h3>🖥️ Cliente (Front-end)</h3>
+      <ul>
+        <li>Navegador Web (Chrome, Firefox)</li>
+        <li>HTML5 + CSS3 + JavaScript</li>
+        <li>Envia Requisições HTTP</li>
+        <li>Renderiza a Interface</li>
+      </ul>
+    </div>
+    <div class="highlight-box">
+      <h3>⚙️ Servidor (Back-end)</h3>
+      <ul>
+        <li>Node.js + Express</li>
+        <li>Processa Regras de Negócio</li>
+        <li>Acessa Banco MySQL</li>
+        <li>Retorna JSON/HTML</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: HTTP -->
+<div class="slide" id="slide-4">
+  <h2>🔄 Protocolo HTTP - Métodos e Status</h2>
+  <div class="two-cols">
+    <div>
+      <h3>Métodos HTTP (Verbos)</h3>
+      <div class="highlight-box">
+        <p><code>GET</code> → Buscar dados (Ler)</p>
+        <p><code>POST</code> → Criar novo recurso</p>
+        <p><code>PUT</code> → Atualizar recurso existente</p>
+        <p><code>DELETE</code> → Remover recurso</p>
+      </div>
+    </div>
+    <div>
+      <h3>Códigos de Status</h3>
+      <div class="highlight-box">
+        <p><code>200</code> OK - Sucesso</p>
+        <p><code>201</code> Created - Recurso criado</p>
+        <p><code>400</code> Bad Request - Erro do cliente</p>
+        <p><code>401</code> Unauthorized - Não autenticado</p>
+        <p><code>404</code> Not Found - Não encontrado</p>
+        <p><code>500</code> Internal Server Error</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: HTML5 Semântico -->
+<div class="slide" id="slide-5">
+  <h2>📄 HTML5 - Tags Semânticas</h2>
+  <div class="two-cols">
+    <div>
+      <p>O HTML5 introduziu tags com <strong>significado semântico</strong> para SEO e acessibilidade:</p>
+      <div class="highlight-box">
+        <p><code>&lt;header&gt;</code> → Cabeçalho</p>
+        <p><code>&lt;nav&gt;</code> → Navegação</p>
+        <p><code>&lt;main&gt;</code> → Conteúdo principal</p>
+        <p><code>&lt;section&gt;</code> → Seção temática</p>
+        <p><code>&lt;article&gt;</code> → Conteúdo autônomo</p>
+        <p><code>&lt;footer&gt;</code> → Rodapé</p>
+      </div>
+    </div>
+    <div>
+      <div class="code-block">&lt;body&gt;
+  &lt;header&gt;
+    &lt;nav&gt;...&lt;/nav&gt;
+  &lt;/header&gt;
+  &lt;main&gt;
+    &lt;section id="colecao"&gt;
+      &lt;article class="card"&gt;
+        ...Pokémon Card...
+      &lt;/article&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+  &lt;footer&gt;© 2026&lt;/footer&gt;
+&lt;/body&gt;</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: CSS3 Box Model -->
+<div class="slide" id="slide-6">
+  <h2>🎨 CSS3 - Box Model e Flexbox</h2>
+  <div class="two-cols">
+    <div>
+      <h3>Box Model</h3>
+      <div class="diagram" style="font-size:0.85rem;">
+┌─── MARGIN ───────────────┐<br>
+│ ┌── BORDER ────────────┐ │<br>
+│ │ ┌─ PADDING ────────┐ │ │<br>
+│ │ │ ┌── CONTENT ──┐  │ │ │<br>
+│ │ │ │ width x height│ │ │ │<br>
+│ │ │ └─────────────┘  │ │ │<br>
+│ │ └──────────────────┘ │ │<br>
+│ └──────────────────────┘ │<br>
+└──────────────────────────┘
+      </div>
+    </div>
+    <div>
+      <h3>Flexbox</h3>
+      <div class="code-block">.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Dica essencial: */
+* { box-sizing: border-box; }</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Bootstrap -->
+<div class="slide" id="slide-7">
+  <h2>🅱️ Bootstrap 5 - Grid Responsivo</h2>
+  <p>Sistema de 12 colunas com breakpoints: <code>sm</code> ≥576px | <code>md</code> ≥768px | <code>lg</code> ≥992px | <code>xl</code> ≥1200px</p>
+  <div class="code-block">&lt;!-- 1 coluna em mobile, 2 em tablet, 3 em desktop --&gt;
+&lt;div class="row g-4"&gt;
+  &lt;div class="col-12 col-md-6 col-lg-4"&gt;
+    &lt;div class="card"&gt;...Pokémon 1...&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="col-12 col-md-6 col-lg-4"&gt;
+    &lt;div class="card"&gt;...Pokémon 2...&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="col-12 col-md-6 col-lg-4"&gt;
+    &lt;div class="card"&gt;...Pokémon 3...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+  <div class="highlight-box" style="margin-top:15px;">
+    <p>💡 <strong>Mobile-First:</strong> As classes sem prefixo (<code>col-12</code>) aplicam em todas as telas. Classes com prefixo (<code>col-md-6</code>) aplicam a partir daquele breakpoint.</p>
+  </div>
+</div>
+
+<!-- SLIDE 8: Node.js -->
+<div class="slide" id="slide-8">
+  <h2>⚙️ Back-End - Node.js + Express</h2>
+  <div class="two-cols">
+    <div>
+      <h3>Estrutura do Projeto</h3>
+      <div class="code-block">/pokemon-app
+├── package.json
+├── server.js
+├── /config
+│   └── db.js
+├── /database
+│   └── schema.sql
+└── /public
+    ├── index.html
+    ├── /css/style.css
+    └── /js/app.js</div>
+    </div>
+    <div>
+      <h3>Exemplo de Rota REST</h3>
+      <div class="code-block">// GET - Listar Pokémons
+app.get('/api/meus-pokemons',
+  autenticarSessao,
+  async (req, res) => {
+    const [pokemons] = await db.execute(
+      'SELECT * FROM pokemons WHERE usuario_id = ?',
+      [req.session.usuarioId]
+    );
+    res.json(pokemons);
+});</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: MySQL -->
+<div class="slide" id="slide-9">
+  <h2>🗄️ Banco de Dados MySQL</h2>
+  <div class="diagram" style="font-size:1rem;">
+    ┌── usuarios ──┐    ┌── pokemons ──────────┐    ┌── trocas ────────────┐<br>
+    │ id (PK)      │    │ id (PK)              │    │ id (PK)              │<br>
+    │ nome         │←───│ usuario_id (FK)      │    │ pokemon_ofertado (FK)│<br>
+    │ email        │    │ nome                 │───→│ pokemon_desejado (FK)│<br>
+    │ senha        │    │ tipo, nivel          │    │ status (ENUM)        │<br>
+    │ criado_em    │    │ ataque, hp           │    │ criado_em            │<br>
+    └──────────────┘    │ sprite_url           │    └──────────────────────┘<br>
+                        └──────────────────────┘
+  </div>
+  <div class="highlight-box">
+    <p>🔑 <strong>Relacionamentos:</strong> <code>pokemons.usuario_id</code> → FK para <code>usuarios.id</code> (1:N) | <code>ON DELETE CASCADE</code> garante integridade referencial.</p>
+  </div>
+</div>
+
+<!-- SLIDE 10: JavaScript Assíncrono -->
+<div class="slide" id="slide-10">
+  <h2>⚡ JavaScript Assíncrono - Fetch API</h2>
+  <div class="code-block">// Consumindo a API REST do nosso servidor
+async function carregarMeusPokemons() {
+  const resposta = await fetch('/api/meus-pokemons');
+  const pokemons = await resposta.json();
+  
+  pokemons.forEach(poke => {
+    // Renderiza cada card dinamicamente no DOM
+    container.innerHTML += `
+      &lt;div class="card"&gt;
+        &lt;h5&gt;${poke.nome}&lt;/h5&gt;
+        &lt;p&gt;Ataque: ${poke.ataque} | HP: ${poke.hp}&lt;/p&gt;
+      &lt;/div&gt;`;
+  });
+}</div>
+  <div class="highlight-box" style="margin-top:15px;">
+    <p>🔄 O <code>fetch()</code> retorna uma <strong>Promise</strong>. Com <code>async/await</code>, o código fica legível e sequencial, mantendo a natureza assíncrona.</p>
+  </div>
+</div>
+
+<!-- SLIDE 11: CRUD -->
+<div class="slide" id="slide-11">
+  <h2>📝 CRUD Completo - API RESTful</h2>
+  <table style="width:100%;font-size:1.2rem;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:2px solid #fd7d24;">
+        <th style="padding:12px;text-align:left;">Operação</th>
+        <th style="padding:12px;text-align:left;">Método</th>
+        <th style="padding:12px;text-align:left;">Rota</th>
+        <th style="padding:12px;text-align:left;">SQL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:12px;">🔍 Listar</td>
+        <td style="padding:12px;"><code>GET</code></td>
+        <td style="padding:12px;"><code>/api/meus-pokemons</code></td>
+        <td style="padding:12px;"><code>SELECT *</code></td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:12px;">➕ Criar</td>
+        <td style="padding:12px;"><code>POST</code></td>
+        <td style="padding:12px;"><code>/api/pokemons</code></td>
+        <td style="padding:12px;"><code>INSERT INTO</code></td>
+      </tr>
+      <tr style="border-bottom:1px solid #333;">
+        <td style="padding:12px;">✏️ Atualizar</td>
+        <td style="padding:12px;"><code>PUT</code></td>
+        <td style="padding:12px;"><code>/api/pokemons/:id</code></td>
+        <td style="padding:12px;"><code>UPDATE SET</code></td>
+      </tr>
+      <tr>
+        <td style="padding:12px;">🗑️ Deletar</td>
+        <td style="padding:12px;"><code>DELETE</code></td>
+        <td style="padding:12px;"><code>/api/pokemons/:id</code></td>
+        <td style="padding:12px;"><code>DELETE FROM</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SLIDE 12: Passo a Passo -->
+<div class="slide" id="slide-12">
+  <h2>🚀 Passo a Passo - Como Desenvolver</h2>
+  <div class="two-cols">
+    <div>
+      <div class="highlight-box">
+        <h3>1️⃣ Preparar Ambiente</h3>
+        <p>Instale Node.js, MySQL e VS Code</p>
+      </div>
+      <div class="highlight-box">
+        <h3>2️⃣ Criar o Banco</h3>
+        <p>Execute o <code>schema.sql</code> no MySQL</p>
+      </div>
+      <div class="highlight-box">
+        <h3>3️⃣ Instalar Dependências</h3>
+        <p><code>npm install</code></p>
+      </div>
+    </div>
+    <div>
+      <div class="highlight-box">
+        <h3>4️⃣ Criar as Rotas REST</h3>
+        <p>Express + mysql2 no <code>server.js</code></p>
+      </div>
+      <div class="highlight-box">
+        <h3>5️⃣ Construir o Front-End</h3>
+        <p>HTML + Bootstrap + fetch()</p>
+      </div>
+      <div class="highlight-box">
+        <h3>6️⃣ Testar e Iterar</h3>
+        <p><code>npm run dev</code> e testar CRUD</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: Encerramento -->
+<div class="slide slide-cover" id="slide-13">
+  <div>
+    <p class="emoji-big">🎓</p>
+    <h1>Parabéns!</h1>
+    <h2 style="font-weight:400;">Você completou o Manual Integral de Desenvolvimento Web Full-Stack</h2>
+    <div style="margin-top:40px;font-size:1.2rem;opacity:0.9;">
+      <p>✅ Arquitetura Cliente-Servidor e HTTP</p>
+      <p>✅ HTML5 Semântico e CSS3/Bootstrap</p>
+      <p>✅ Node.js + Express + MySQL</p>
+      <p>✅ API RESTful com CRUD Completo</p>
+      <p>✅ JavaScript Assíncrono (Fetch API)</p>
+    </div>
+    <p style="margin-top:40px;font-size:1.3rem;font-weight:600;">🚀 Agora é praticar e evoluir!</p>
+  </div>
+</div>
+
+<!-- Controles -->
+<div class="controls">
+  <button onclick="prevSlide()">← Anterior</button>
+  <button onclick="nextSlide()">Próximo →</button>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 13;
+
+  function showSlide(n) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById(`slide-${n}`).classList.add('active');
+    document.getElementById('progressBar').style.width = `${(n / totalSlides) * 100}%`;
+    document.getElementById('slideCounter').textContent = `${n} / ${totalSlides}`;
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides) { currentSlide++; showSlide(currentSlide); }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 1) { currentSlide--; showSlide(currentSlide); }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  showSlide(1);
+</script>
+
+</body>
+</html>

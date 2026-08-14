@@ -1,0 +1,72 @@
+/* ============================================
+   Pokémon Trading App - Estilos Customizados
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.pokemon-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+}
+
+.pokemon-card:hover img {
+  transform: scale(1.2);
+}
+
+.pokemon-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pokemon-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Badges por tipo */
+.badge-fogo { background-color: #fd7d24 !important; }
+.badge-agua { background-color: #6890f0 !important; }
+.badge-planta { background-color: #78c850 !important; }
+.badge-eletrico { background-color: #f8d030 !important; color: #000 !important; }
+.badge-normal { background-color: #a8a878 !important; }
+.badge-psiquico { background-color: #f85888 !important; }
+.badge-dragao { background-color: #7038f8 !important; }
+.badge-fantasma { background-color: #705898 !important; }
+.badge-pedra { background-color: #b8a038 !important; }
+.badge-lendario { background-color: #e6c422 !important; color: #000 !important; }
+
+/* Resultado de batalha */
+.resultado-vitoria {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  animation: fadeIn 0.5s ease;
+}
+
+.resultado-derrota {
+  background: linear-gradient(135deg, #dc3545, #e83e8c);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card do mercado */
+.mercado-card {
+  border-left: 4px solid #dc3545;
+}
