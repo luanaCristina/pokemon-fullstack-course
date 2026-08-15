@@ -34,42 +34,136 @@ Este projeto é uma **aplicação Full-Stack completa e gamificada** que serve c
 
 ### Pré-requisitos
 
-- [Node.js](https://nodejs.org/) v18+ instalado
-- [MySQL](https://dev.mysql.com/downloads/) 8.0+ instalado e rodando
+- macOS (ou Linux/Windows com adaptações)
+- [Homebrew](https://brew.sh/) instalado (para macOS)
 - Terminal / linha de comando
 
-### Passo a Passo
+---
+
+### Passo 1 — Instalar o Node.js
+
+Se ainda não tiver o Node.js instalado:
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/SEU_USUARIO/pokemon-fullstack-course.git
+# Instalar via Homebrew
+brew install node
+
+# Verificar a instalação
+node --version   # Deve mostrar v18+
+npm --version
+```
+
+---
+
+### Passo 2 — Instalar o MySQL
+
+```bash
+# Instalar MySQL via Homebrew
+brew install mysql
+
+# Iniciar o serviço MySQL
+brew services start mysql
+
+# Verificar se está rodando
+brew services list
+# Deve mostrar: mysql started
+```
+
+---
+
+### Passo 3 — Configurar a Senha do MySQL
+
+```bash
+# Executar o assistente de segurança
+mysql_secure_installation
+```
+
+O assistente vai perguntar:
+
+1. **Validate password component?** → `y`
+2. **Password validation policy** → Digite `2` (STRONG)
+3. **New password** → Use uma senha forte, ex: `Pokemon@2026`
+   - Precisa ter: 8+ caracteres, maiúscula, minúscula, número e caractere especial
+4. **Continue with password provided?** → `y`
+5. **Remove anonymous users?** → `y`
+6. **Disallow root login remotely?** → `y`
+7. **Remove test database?** → `y`
+8. **Reload privilege tables?** → `y`
+
+---
+
+### Passo 4 — Clonar e Instalar o Projeto
+
+```bash
+# Clonar o repositório
+git clone https://github.com/luanaCristina/pokemon-fullstack-course.git
 cd pokemon-fullstack-course
 
-# 2. Instale as dependências
+# Instalar dependências do Node.js
 npm install
+```
 
-# 3. Configure o Banco de Dados MySQL
-# Abra o MySQL e execute o script:
+---
+
+### Passo 5 — Criar o Banco de Dados
+
+```bash
+# Executar o script SQL que cria o banco e as tabelas
 mysql -u root -p < database/schema.sql
+# Quando pedir senha, digite a que você configurou (ex: Pokemon@2026)
+```
 
-# Ou copie e cole o conteúdo de database/schema.sql no MySQL Workbench
+---
 
-# 4. (Opcional) Configure variáveis de ambiente
-# Crie um arquivo .env ou edite config/db.js com suas credenciais MySQL
+### Passo 6 — Configurar a Senha no Projeto
 
-# 5. Inicie o servidor
+Edite o arquivo `config/db.js` e coloque a senha que você definiu no MySQL:
+
+```javascript
+password: process.env.DB_PASS || 'SUA_SENHA_AQUI',
+```
+
+---
+
+### Passo 7 — Iniciar o Servidor
+
+```bash
+# Modo produção
 npm start
 
-# Ou em modo de desenvolvimento (com hot-reload):
+# Ou modo desenvolvimento (com hot-reload automático)
 npm run dev
 ```
+
+---
+
+### Passo 8 — Acessar a Aplicação
+
+Abra o navegador:
+
+```
+http://localhost:3000        → Aplicação (Login/Cadastro)
+http://localhost:3000/slides → Apresentação Online (13 slides)
+```
+
+---
+
+### Resolução de Problemas
+
+| Problema | Solução |
+|----------|---------|
+| `command not found: mysql` | Instale: `brew install mysql` |
+| `password does not satisfy policy` | Use senha com 8+ chars, maiúsc., minúsc., número e especial |
+| `ECONNREFUSED` ao rodar o app | MySQL não está rodando: `brew services start mysql` |
+| `ER_ACCESS_DENIED_ERROR` | Senha em `config/db.js` não confere com a do MySQL |
+| `ER_BAD_DB_ERROR` | Execute: `mysql -u root -p < database/schema.sql` |
 
 ### Acessar a Aplicação
 
 | URL | Descrição |
 |-----|-----------|
 | http://localhost:3000 | Aplicação principal (Login/Cadastro) |
-| http://localhost:3000/slides | Apresentação Online (13 slides) |
+| http://localhost:3000/slides | Apresentação Online (13 slides, navegar com ← →) |
 
 ---
 
