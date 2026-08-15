@@ -179,29 +179,38 @@
 <!-- SLIDE 3: Arquitetura -->
 <div class="slide" id="slide-3">
   <h2>🏗️ Arquitetura Cliente-Servidor</h2>
-  <div class="diagram">
-    [ CLIENTE (Navegador) ] ─── HTTP Request ───→ [ SERVIDOR (Node.js) ]<br><br>
-    │ HTML/CSS/JS              GET /api/pokemons         │ Express + MySQL<br><br>
-    [ CLIENTE ] ←── HTTP Response (JSON) ──── [ SERVIDOR ]
+  <p style="color:#f8d030;">Como a comunicação funciona na Web — cada etapa explicada</p>
+  <div class="diagram" style="font-size:0.95rem;">
+    <span style="color:#6890f0">[SEU NAVEGADOR]</span> ──<span style="color:#78c850">①</span>── DNS "pokemon.com" → IP? ──→ <span style="color:#a8a878">[SERVIDOR DNS]</span><br>
+    <span style="color:#6890f0">[SEU NAVEGADOR]</span> ←─<span style="color:#78c850">②</span>── IP: 192.168.1.1 ──────── <span style="color:#a8a878">[SERVIDOR DNS]</span><br><br>
+    <span style="color:#6890f0">[SEU NAVEGADOR]</span> ──<span style="color:#fd7d24">③</span>── GET /api/pokemons ──────→ <span style="color:#f85888">[SERVIDOR NODE.JS]</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓ SELECT * FROM pokemons<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f8d030">[MYSQL]</span><br>
+    <span style="color:#6890f0">[SEU NAVEGADOR]</span> ←─<span style="color:#fd7d24">④</span>── 200 OK + JSON [{...}] ─── <span style="color:#f85888">[SERVIDOR NODE.JS]</span>
   </div>
-  <div class="two-cols" style="margin-top:20px;">
+  <div class="two-cols" style="margin-top:15px;font-size:0.95rem;">
     <div class="highlight-box">
-      <h3>🖥️ Cliente (Front-end)</h3>
-      <ul>
-        <li>Navegador Web (Chrome, Firefox)</li>
-        <li>HTML5 + CSS3 + JavaScript</li>
-        <li>Envia Requisições HTTP</li>
-        <li>Renderiza a Interface</li>
+      <h3>🖥️ Cliente (Front-end) — O que você VÊ</h3>
+      <p><strong>O que é?</strong> O navegador (Chrome, Firefox) do usuário.</p>
+      <p><strong>O que faz?</strong></p>
+      <ul style="margin:0;padding-left:20px;">
+        <li>Envia <strong>requisições HTTP</strong> (pedidos) ao servidor</li>
+        <li>Recebe <strong>respostas</strong> (HTML, JSON, imagens)</li>
+        <li>Renderiza a interface com HTML/CSS/JS</li>
       </ul>
+      <p style="margin-top:8px;"><strong>Analogia:</strong> Você no restaurante fazendo o pedido.</p>
     </div>
     <div class="highlight-box">
-      <h3>⚙️ Servidor (Back-end)</h3>
-      <ul>
-        <li>Node.js + Express</li>
-        <li>Processa Regras de Negócio</li>
-        <li>Acessa Banco MySQL</li>
-        <li>Retorna JSON/HTML</li>
+      <h3>⚙️ Servidor (Back-end) — O que PROCESSA</h3>
+      <p><strong>O que é?</strong> Um computador remoto rodando Node.js.</p>
+      <p><strong>O que faz?</strong></p>
+      <ul style="margin:0;padding-left:20px;">
+        <li>Recebe requisições e identifica a <strong>rota</strong></li>
+        <li>Aplica <strong>regras de negócio</strong> (validações, cálculos)</li>
+        <li>Consulta o <strong>banco de dados</strong> MySQL</li>
+        <li>Retorna a resposta em <strong>JSON</strong></li>
       </ul>
+      <p style="margin-top:8px;"><strong>Analogia:</strong> A cozinha que prepara o prato.</p>
     </div>
   </div>
 </div>
@@ -356,41 +365,99 @@ app.get('/api/meus-pokemons',
 
 <!-- SLIDE 9: MySQL -->
 <div class="slide" id="slide-9">
-  <h2>🗄️ Banco de Dados MySQL</h2>
-  <div class="diagram" style="font-size:1rem;">
-    ┌── usuarios ──┐    ┌── pokemons ──────────┐    ┌── trocas ────────────┐<br>
-    │ id (PK)      │    │ id (PK)              │    │ id (PK)              │<br>
-    │ nome         │←───│ usuario_id (FK)      │    │ pokemon_ofertado (FK)│<br>
-    │ email        │    │ nome                 │───→│ pokemon_desejado (FK)│<br>
-    │ senha        │    │ tipo, nivel          │    │ status (ENUM)        │<br>
-    │ criado_em    │    │ ataque, hp           │    │ criado_em            │<br>
-    └──────────────┘    │ sprite_url           │    └──────────────────────┘<br>
-                        └──────────────────────┘
-  </div>
-  <div class="highlight-box">
-    <p>🔑 <strong>Relacionamentos:</strong> <code>pokemons.usuario_id</code> → FK para <code>usuarios.id</code> (1:N) | <code>ON DELETE CASCADE</code> garante integridade referencial.</p>
+  <h2>🗄️ Banco de Dados MySQL — Explicado</h2>
+  <p style="color:#f8d030;">Por que usamos um banco? Onde os dados ficam guardados de forma permanente.</p>
+  <div class="two-cols">
+    <div>
+      <div class="diagram" style="font-size:0.85rem;text-align:left;">
+┌── <span style="color:#6890f0">usuarios</span> ──────────────┐<br>
+│ <span style="color:#f8d030">id</span> INT (PK) ← gerado auto │<br>
+│ nome VARCHAR(100)          │<br>
+│ email VARCHAR(100) UNIQUE  │<br>
+│ senha VARCHAR(255)         │<br>
+└────────────────────────────┘<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑ 1 usuário tem N pokémons<br>
+┌── <span style="color:#78c850">pokemons</span> ─────────────────┐<br>
+│ <span style="color:#f8d030">id</span> INT (PK)                  │<br>
+│ <span style="color:#fd7d24">usuario_id</span> INT (FK) → usuarios.id │<br>
+│ nome, tipo, nivel            │<br>
+│ ataque, hp, sprite_url       │<br>
+│ vitorias INT                 │<br>
+└──────────────────────────────┘
+      </div>
+    </div>
+    <div>
+      <h3>O que significa cada termo?</h3>
+      <div class="highlight-box" style="font-size:0.9rem;">
+        <p><span style="color:#f8d030"><strong>PK (Primary Key)</strong></span> — Identificador ÚNICO de cada linha. Nunca repete. O banco gera sozinho (AUTO_INCREMENT).</p>
+        <p><span style="color:#fd7d24"><strong>FK (Foreign Key)</strong></span> — "Conexão" entre tabelas. <code>usuario_id</code> em pokemons aponta para <code>id</code> em usuarios.</p>
+        <p><strong>ON DELETE CASCADE</strong> — Se deletar o usuário, TODOS os pokémons dele são deletados juntos (não ficam órfãos).</p>
+        <p><strong>UNIQUE</strong> — O email não pode repetir. Se tentar cadastrar o mesmo email, dá erro.</p>
+        <p><strong>VARCHAR(100)</strong> — Texto com no máximo 100 caracteres.</p>
+      </div>
+      <div class="code-block" style="font-size:0.75rem;margin-top:10px;">
+<span style="color:#6a9955">-- Criar a tabela (rodar UMA vez)</span>
+CREATE TABLE pokemons (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  FOREIGN KEY (usuario_id)
+    REFERENCES usuarios(id)
+    ON DELETE CASCADE
+);</div>
+    </div>
   </div>
 </div>
 
 <!-- SLIDE 10: JavaScript Assíncrono -->
 <div class="slide" id="slide-10">
-  <h2>⚡ JavaScript Assíncrono - Fetch API</h2>
-  <div class="code-block">// Consumindo a API REST do nosso servidor
-async function carregarMeusPokemons() {
-  const resposta = await fetch('/api/meus-pokemons');
-  const pokemons = await resposta.json();
-  
-  pokemons.forEach(poke => {
-    // Renderiza cada card dinamicamente no DOM
-    container.innerHTML += `
-      &lt;div class="card"&gt;
-        &lt;h5&gt;${poke.nome}&lt;/h5&gt;
-        &lt;p&gt;Ataque: ${poke.ataque} | HP: ${poke.hp}&lt;/p&gt;
-      &lt;/div&gt;`;
-  });
+  <h2>⚡ JavaScript Assíncrono — Cada Passo Explicado</h2>
+  <p style="color:#f8d030;">Por que o JS precisa ser assíncrono? Porque buscar dados na internet DEMORA.</p>
+  <div class="two-cols">
+    <div>
+      <div class="code-block" style="font-size:0.78rem"><span style="color:#6a9955">// ═══ O PROBLEMA ═══
+// Sem async/await, isso acontece:</span>
+const resposta = fetch('/api/pokemons');
+console.log(resposta);
+<span style="color:#6a9955">// ❌ Imprime: Promise {pending}
+// Os dados AINDA NÃO CHEGARAM!</span>
+
+<span style="color:#6a9955">// ═══ A SOLUÇÃO: async/await ═══
+// "await" = ESPERE a resposta chegar
+// "async" = marca a função como assíncrona
+// Agora funciona na ordem certa!</span>
+
+<span style="color:#569cd6">async function</span> <span style="color:#dcdcaa">carregarPokemons</span>() {
+
+  <span style="color:#6a9955">// Passo 1: Pede os dados ao servidor
+  // await FAZ O JS PARAR AQUI até receber</span>
+  <span style="color:#569cd6">const</span> resposta = <span style="color:#569cd6">await</span> <span style="color:#dcdcaa">fetch</span>(<span style="color:#ce9178">'/api/meus-pokemons'</span>);
+
+  <span style="color:#6a9955">// Passo 2: Converte a resposta em JSON
+  // O servidor envia texto, .json() transforma
+  // em objetos JavaScript manipuláveis</span>
+  <span style="color:#569cd6">const</span> pokemons = <span style="color:#569cd6">await</span> resposta.<span style="color:#dcdcaa">json</span>();
+
+  <span style="color:#6a9955">// Passo 3: "pokemons" agora é um ARRAY:
+  // [{nome:"Pikachu", ataque:55, hp:35}, ...]
+  // Podemos usar .forEach para percorrer!</span>
 }</div>
-  <div class="highlight-box" style="margin-top:15px;">
-    <p>🔄 O <code>fetch()</code> retorna uma <strong>Promise</strong>. Com <code>async/await</code>, o código fica legível e sequencial, mantendo a natureza assíncrona.</p>
+    </div>
+    <div>
+      <h3>O que cada coisa faz?</h3>
+      <div class="highlight-box" style="font-size:0.9rem;">
+        <p><code><strong>async</strong></code> — Declara: "esta função tem operações que demoram". Obrigatório para usar <code>await</code> dentro.</p>
+        <p><code><strong>await</strong></code> — "Pare aqui e espere o resultado". Sem ele, o código continua ANTES dos dados chegarem.</p>
+        <p><code><strong>fetch(url)</strong></code> — Faz uma requisição HTTP GET para a URL. Retorna uma Promise (promessa de dados futuros).</p>
+        <p><code><strong>.json()</strong></code> — Transforma o texto bruto da resposta em objetos JavaScript que podemos usar.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:10px;font-size:0.9rem;">
+        <h3>Analogia do Delivery</h3>
+        <p>🛵 <code>fetch()</code> = Você faz o pedido no iFood</p>
+        <p>⏳ <code>await</code> = Você espera o entregador chegar</p>
+        <p>📦 <code>.json()</code> = Você abre a embalagem</p>
+        <p>🍕 <code>pokemons</code> = A comida pronta para consumir!</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -437,48 +504,54 @@ async function carregarMeusPokemons() {
 
 <!-- SLIDE 12: PokeAPI -->
 <div class="slide" id="slide-12">
-  <h2>🔌 Integração com PokeAPI</h2>
-  <p>A aplicação consome dados reais da <code>https://pokeapi.co/api/v2</code> para descrições, sprites oficiais, stats e cadeia de evolução.</p>
+  <h2>🔌 Integração com PokeAPI — Como Fizemos</h2>
+  <p style="color:#f8d030;">Nosso servidor Node.js busca dados na PokeAPI e repassa ao front-end. Veja cada etapa:</p>
   <div class="two-cols">
     <div>
-      <h3>Endpoints Consumidos</h3>
-      <div class="highlight-box">
-        <p><code>GET /pokemon/{name}</code> → Stats, sprites, tipos</p>
-        <p><code>GET /pokemon-species/{name}</code> → Descrição (flavor_text)</p>
-        <p><code>GET /evolution-chain/{id}</code> → Cadeia de evolução</p>
+      <h3>O Fluxo Completo (3 chamadas)</h3>
+      <div class="diagram" style="font-size:0.8rem;text-align:left;">
+<span style="color:#6890f0">Front-end</span> → GET /api/pokemon/descricao/pikachu → <span style="color:#f85888">Nosso Server</span><br><br>
+<span style="color:#f85888">Nosso Server</span> faz internamente:<br>
+&nbsp;&nbsp;1️⃣ fetch("pokeapi.co/api/v2/<span style="color:#78c850">pokemon</span>/pikachu")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Recebe: sprites, stats, tipos<br><br>
+&nbsp;&nbsp;2️⃣ fetch("pokeapi.co/api/v2/<span style="color:#78c850">pokemon-species</span>/pikachu")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Recebe: descrição da Pokédex<br><br>
+&nbsp;&nbsp;3️⃣ Combina tudo e retorna JSON ao front<br><br>
+<span style="color:#6890f0">Front-end</span> ← JSON {sprite, descricao, stats...}
       </div>
-      <h3>O que obtemos</h3>
-      <div class="highlight-box">
-        <p>🖼️ Official Artwork (sprites HD)</p>
-        <p>📊 Stats base (HP, Ataque, Defesa...)</p>
-        <p>📖 Descrição em português (Pokédex)</p>
-        <p>🔄 Próxima evolução com dados reais</p>
+      <div class="highlight-box" style="margin-top:10px;font-size:0.85rem;">
+        <p><strong>Por que o SERVER chama a API e não o front?</strong></p>
+        <p>→ Segurança (esconde chaves de API)</p>
+        <p>→ Cache (pode salvar para não chamar toda vez)</p>
+        <p>→ Formatação (filtra só o que o front precisa)</p>
       </div>
     </div>
     <div>
-      <div class="code-block">// No servidor Node.js (server.js)
-app.get('/api/pokemon/descricao/:nome',
-  async (req, res) => {
+      <h3>Código do Servidor (simplificado)</h3>
+      <div class="code-block" style="font-size:0.72rem"><span style="color:#6a9955">// Rota que o front-end chama</span>
+app.<span style="color:#dcdcaa">get</span>(<span style="color:#ce9178">'/api/pokemon/descricao/:nome'</span>,
+  <span style="color:#569cd6">async</span> (req, res) => {
 
-  // 1. Busca dados do Pokémon
-  const pokeRes = await fetch(
-    `https://pokeapi.co/api/v2/pokemon/${nome}`
+  <span style="color:#6a9955">// 1. Busca dados na PokeAPI</span>
+  <span style="color:#569cd6">const</span> pokeRes = <span style="color:#569cd6">await</span> <span style="color:#dcdcaa">fetch</span>(
+    <span style="color:#ce9178">`https://pokeapi.co/api/v2/pokemon/
+      ${req.params.nome}`</span>
   );
-  const pokeData = await pokeRes.json();
+  <span style="color:#569cd6">const</span> poke = <span style="color:#569cd6">await</span> pokeRes.<span style="color:#dcdcaa">json</span>();
 
-  // 2. Busca descrição (species)
-  const speciesRes = await fetch(
-    pokeData.species.url
-  );
-  const speciesData = await speciesRes.json();
+  <span style="color:#6a9955">// 2. Busca descrição (outro endpoint)</span>
+  <span style="color:#569cd6">const</span> specRes = <span style="color:#569cd6">await</span> <span style="color:#dcdcaa">fetch</span>(poke.species.url);
+  <span style="color:#569cd6">const</span> spec = <span style="color:#569cd6">await</span> specRes.<span style="color:#dcdcaa">json</span>();
 
-  // 3. Retorna dados combinados
-  res.json({
-    sprite: pokeData.sprites.other
-      ['official-artwork'].front_default,
-    descricao: speciesData
-      .flavor_text_entries[0].flavor_text,
-    stats: pokeData.stats
+  <span style="color:#6a9955">// 3. Monta resposta com só o necessário</span>
+  res.<span style="color:#dcdcaa">json</span>({
+    sprite: poke.sprites.other
+      [<span style="color:#ce9178">'official-artwork'</span>].front_default,
+    descricao: spec.flavor_text_entries
+      .find(e => e.language.name === <span style="color:#ce9178">'en'</span>)
+      .flavor_text,
+    stats: poke.stats,
+    tipos: poke.types.map(t => t.type.name)
   });
 });</div>
     </div>
@@ -487,34 +560,48 @@ app.get('/api/pokemon/descricao/:nome',
 
 <!-- SLIDE 13: Passo a Passo -->
 <div class="slide" id="slide-13">
-  <h2>🚀 Passo a Passo - Como Desenvolver</h2>
-  <div class="two-cols">
+  <h2>🚀 Passo a Passo — Como Desenvolvemos Este Projeto</h2>
+  <p style="color:#f8d030;">Cada número é uma etapa real que seguimos. Reproduza na ordem!</p>
+  <div class="two-cols" style="font-size:0.9rem;">
     <div>
-      <div class="highlight-box">
+      <div class="highlight-box" style="margin-bottom:8px">
         <h3>1️⃣ Preparar Ambiente</h3>
-        <p>Instale Node.js, MySQL e VS Code</p>
+        <p><code>brew install node</code> → instala Node.js</p>
+        <p><code>brew install mysql</code> → instala o banco</p>
+        <p>VS Code + extensão Live Server</p>
       </div>
-      <div class="highlight-box">
-        <h3>2️⃣ Criar o Banco</h3>
-        <p>Execute o <code>schema.sql</code> no MySQL</p>
+      <div class="highlight-box" style="margin-bottom:8px">
+        <h3>2️⃣ Criar o Banco de Dados</h3>
+        <p>Escrevemos o <code>schema.sql</code> com CREATE TABLE</p>
+        <p>Executamos: <code>mysql -u root -p < schema.sql</code></p>
+        <p>Resultado: 3 tabelas criadas (usuarios, pokemons, trocas)</p>
       </div>
-      <div class="highlight-box">
-        <h3>3️⃣ Instalar Dependências</h3>
-        <p><code>npm install</code></p>
+      <div class="highlight-box" style="margin-bottom:8px">
+        <h3>3️⃣ Iniciar o Projeto Node.js</h3>
+        <p><code>npm init</code> → cria package.json</p>
+        <p><code>npm install express mysql2 express-session</code></p>
+        <p>Cria <code>server.js</code> com Express</p>
       </div>
     </div>
     <div>
-      <div class="highlight-box">
-        <h3>4️⃣ Criar as Rotas REST</h3>
-        <p>Express + mysql2 no <code>server.js</code></p>
+      <div class="highlight-box" style="margin-bottom:8px">
+        <h3>4️⃣ Criar as Rotas da API</h3>
+        <p>Cada rota = 1 operação do CRUD</p>
+        <p><code>app.get('/api/pokemons')</code> → lista</p>
+        <p><code>app.post('/api/pokemons')</code> → cria</p>
+        <p>Conecta cada rota ao SQL do banco</p>
       </div>
-      <div class="highlight-box">
+      <div class="highlight-box" style="margin-bottom:8px">
         <h3>5️⃣ Construir o Front-End</h3>
-        <p>HTML + Bootstrap + fetch()</p>
+        <p><code>index.html</code> com Bootstrap para layout</p>
+        <p><code>app.js</code> com fetch() chamando nossas rotas</p>
+        <p>innerHTML para renderizar os cards</p>
       </div>
-      <div class="highlight-box">
-        <h3>6️⃣ Testar e Iterar</h3>
-        <p><code>npm run dev</code> e testar CRUD</p>
+      <div class="highlight-box" style="margin-bottom:8px">
+        <h3>6️⃣ Integrar a PokeAPI</h3>
+        <p>Adicionamos rotas que buscam dados externos</p>
+        <p>Descrições, sprites HD e evoluções reais</p>
+        <p>Combinamos dados locais + API externa!</p>
       </div>
     </div>
   </div>
@@ -557,45 +644,61 @@ app.get('/api/pokemon/descricao/:nome',
 
 <!-- SLIDE 15: Como funciona a PokeAPI -->
 <div class="slide" id="slide-15">
-  <h2>🔗 PokeAPI — Como Funciona</h2>
-  <p>URL base: <code>https://pokeapi.co/api/v2/</code> — Documentação: <code>pokeapi.co/docs/v2</code></p>
+  <h2>🔗 PokeAPI — Anatomia da Documentação</h2>
+  <p>Link: <code style="color:#f8d030">https://pokeapi.co/docs/v2</code> — Abra ao lado para acompanhar!</p>
   <div class="two-cols">
     <div>
-      <h3>Endpoints Principais</h3>
-      <div class="code-block"><span style="color:#6a9955">// Listar Pokémons (paginado)</span>
-GET /pokemon?limit=151
-
-<span style="color:#6a9955">// Dados de um Pokémon (stats, sprites, tipos)</span>
-GET /pokemon/pikachu
-GET /pokemon/25
-
-<span style="color:#6a9955">// Descrição da Pokédex</span>
-GET /pokemon-species/pikachu
-
-<span style="color:#6a9955">// Cadeia de evolução</span>
-GET /evolution-chain/10
-
-<span style="color:#6a9955">// Listar tipos</span>
-GET /type
-GET /type/fire  ← todos os Pokémons de Fogo</div>
+      <h3>Como ler a documentação</h3>
+      <div class="highlight-box" style="font-size:0.85rem;">
+        <p><strong>🌐 URL Base</strong> = o endereço raiz de todas as chamadas:</p>
+        <p><code>https://pokeapi.co/api/v2/</code></p>
+        <p>Tudo que vem depois é o <strong>endpoint</strong>.</p>
+      </div>
+      <div class="highlight-box" style="font-size:0.85rem;margin-top:8px;">
+        <p><strong>📍 Endpoint</strong> = o caminho específico do recurso:</p>
+        <p><code>/pokemon/</code> → lista todos</p>
+        <p><code>/pokemon/pikachu</code> → um específico</p>
+        <p><code>/pokemon/25</code> → pelo ID numérico</p>
+      </div>
+      <div class="highlight-box" style="font-size:0.85rem;margin-top:8px;">
+        <p><strong>⚙️ Parâmetros</strong> = filtros na URL:</p>
+        <p><code>?limit=151</code> → quantos trazer</p>
+        <p><code>?offset=20</code> → pular os 20 primeiros</p>
+        <p>Exemplo completo:</p>
+        <p><code>/pokemon?limit=10&offset=0</code></p>
+      </div>
     </div>
     <div>
-      <h3>Estrutura da Resposta (JSON)</h3>
-      <div class="code-block">{
-  "name": "pikachu",
-  "id": 25,
-  "types": [
-    { "type": { "name": "electric" } }
+      <h3>Formato da Resposta (JSON)</h3>
+      <div class="code-block" style="font-size:0.72rem"><span style="color:#6a9955">// GET https://pokeapi.co/api/v2/pokemon/pikachu
+// A resposta é um OBJETO JSON enorme.
+// Precisamos saber NAVEGAR nele:</span>
+
+{
+  <span style="color:#ce9178">"name"</span>: "pikachu",     <span style="color:#6a9955">← texto simples</span>
+  <span style="color:#ce9178">"id"</span>: 25,              <span style="color:#6a9955">← número</span>
+  <span style="color:#ce9178">"types"</span>: [             <span style="color:#6a9955">← ARRAY de objetos</span>
+    {
+      "type": {
+        "name": "electric"  <span style="color:#6a9955">← acesso:
+        data.types[0].type.name</span>
+      }
+    }
   ],
-  "stats": [
-    { "base_stat": 35, "stat": {"name":"hp"} },
-    { "base_stat": 55, "stat": {"name":"attack"} }
+  <span style="color:#ce9178">"stats"</span>: [
+    {
+      "base_stat": 55,      <span style="color:#6a9955">← acesso:
+      data.stats[1].base_stat</span>
+      "stat": { "name": "attack" }
+    }
   ],
-  "sprites": {
-    "front_default": "...url...",
+  <span style="color:#ce9178">"sprites"</span>: {           <span style="color:#6a9955">← objeto aninhado</span>
     "other": {
       "official-artwork": {
-        "front_default": "...url HD..."
+        "front_default": "https://..."
+        <span style="color:#6a9955">↑ acesso: data.sprites.other
+          ['official-artwork']
+          .front_default</span>
       }
     }
   }
@@ -604,41 +707,67 @@ GET /type/fire  ← todos os Pokémons de Fogo</div>
   </div>
 </div>
 
-<!-- SLIDE 16: Passo a passo para criar com API -->
+<!-- SLIDE 16: Passo a passo para criar com API - DETALHADO COM EXEMPLOS -->
 <div class="slide" id="slide-16">
-  <h2>🚀 Passo a Passo: Criar um Site com API</h2>
-  <div class="two-cols">
+  <h2>🚀 Criar um Site com API — Cada Passo com Exemplo Real</h2>
+  <div class="two-cols" style="font-size:0.85rem;">
     <div>
-      <div class="highlight-box" style="margin-bottom:10px">
+      <div class="highlight-box" style="margin-bottom:8px;border-left:4px solid #78c850;">
         <h3>1️⃣ Encontre a API</h3>
-        <p>Busque em <code>github.com/public-apis/public-apis</code> ou Google: "API de [tema]"</p>
+        <p><strong>Como?</strong> Acesse <code>github.com/public-apis/public-apis</code></p>
+        <p>Ou pesquise no Google: <em>"free API pokemon"</em></p>
+        <p><strong>Resultado:</strong> Encontramos <code>pokeapi.co</code></p>
+        <p><strong>Dica:</strong> Verifique se a API é gratuita e sem necessidade de chave (Auth: No).</p>
       </div>
-      <div class="highlight-box" style="margin-bottom:10px">
+      <div class="highlight-box" style="margin-bottom:8px;border-left:4px solid #6890f0;">
         <h3>2️⃣ Leia a Documentação</h3>
-        <p>Entenda: URL base, endpoints, parâmetros e formato da resposta (JSON)</p>
+        <p><strong>Link:</strong> <code>pokeapi.co/docs/v2</code></p>
+        <p><strong>O que procurar:</strong></p>
+        <p>• <em>URL Base:</em> <code>https://pokeapi.co/api/v2/</code></p>
+        <p>• <em>Endpoints:</em> /pokemon, /pokemon-species, /type</p>
+        <p>• <em>Parâmetros:</em> ?limit=20&offset=0</p>
+        <p>• <em>Formato resposta:</em> JSON</p>
+        <p><strong>Dica:</strong> Toda API boa tem docs. Se não tem, evite.</p>
       </div>
-      <div class="highlight-box" style="margin-bottom:10px">
+      <div class="highlight-box" style="margin-bottom:8px;border-left:4px solid #f8d030;">
         <h3>3️⃣ Teste no Navegador</h3>
-        <p>Cole a URL na barra: <code>pokeapi.co/api/v2/pokemon/pikachu</code> e veja o JSON</p>
+        <p><strong>Como?</strong> Cole na barra de endereço:</p>
+        <p><code>pokeapi.co/api/v2/pokemon/pikachu</code></p>
+        <p><strong>O que aparece?</strong> Um JSON enorme!</p>
+        <p>Navegue pelas chaves e entenda a estrutura.</p>
+        <p><strong>Dica:</strong> Instale a extensão "JSON Formatter" no Chrome para visualizar melhor.</p>
       </div>
     </div>
     <div>
-      <div class="highlight-box" style="margin-bottom:10px">
+      <div class="highlight-box" style="margin-bottom:8px;border-left:4px solid #fd7d24;">
         <h3>4️⃣ Use fetch() no JavaScript</h3>
-        <p>Chame a API com <code>async/await</code> e trate erros com <code>try/catch</code></p>
+        <div class="code-block" style="font-size:0.7rem;margin:5px 0;padding:10px;"><span style="color:#6a9955">// Cole isso no Console (F12) do navegador:</span>
+<span style="color:#569cd6">const</span> res = <span style="color:#569cd6">await</span> <span style="color:#dcdcaa">fetch</span>(
+  <span style="color:#ce9178">'https://pokeapi.co/api/v2/pokemon/pikachu'</span>
+);
+<span style="color:#569cd6">const</span> data = <span style="color:#569cd6">await</span> res.<span style="color:#dcdcaa">json</span>();
+console.<span style="color:#dcdcaa">log</span>(data.name); <span style="color:#6a9955">// "pikachu"</span></div>
       </div>
-      <div class="highlight-box" style="margin-bottom:10px">
+      <div class="highlight-box" style="margin-bottom:8px;border-left:4px solid #f85888;">
         <h3>5️⃣ Extraia o que Precisa</h3>
-        <p>Navegue o JSON: <code>data.sprites.other['official-artwork'].front_default</code></p>
+        <p><strong>O JSON tem 100+ campos. Pegue só o necessário:</strong></p>
+        <div class="code-block" style="font-size:0.7rem;margin:5px 0;padding:10px;">data.name                    <span style="color:#6a9955">→ "pikachu"</span>
+data.types[0].type.name      <span style="color:#6a9955">→ "electric"</span>
+data.stats[0].base_stat      <span style="color:#6a9955">→ 35 (HP)</span>
+data.sprites.other
+  ['official-artwork']
+  .front_default             <span style="color:#6a9955">→ URL da imagem</span></div>
       </div>
-      <div class="highlight-box" style="margin-bottom:10px">
+      <div class="highlight-box" style="margin-bottom:8px;border-left:4px solid #a040a0;">
         <h3>6️⃣ Renderize no HTML</h3>
-        <p>Use <code>innerHTML</code> ou <code>createElement</code> para montar a interface</p>
+        <div class="code-block" style="font-size:0.7rem;margin:5px 0;padding:10px;">document.getElementById(<span style="color:#ce9178">'grid'</span>).innerHTML +=
+  <span style="color:#ce9178">`&lt;div class="card"&gt;
+    &lt;img src="${data.sprites.other
+      ['official-artwork'].front_default}"&gt;
+    &lt;h5&gt;${data.name}&lt;/h5&gt;
+  &lt;/div&gt;`</span>;</div>
       </div>
     </div>
-  </div>
-  <div class="highlight-box" style="margin-top:10px;text-align:center;">
-    <p>💡 <strong>Regra de Ouro:</strong> Qualquer dado público que já existe → use uma API. Seus dados privados → crie no seu banco.</p>
   </div>
 </div>
 
