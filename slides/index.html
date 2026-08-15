@@ -642,70 +642,195 @@ GET /type/fire  ← todos os Pokémons de Fogo</div>
   </div>
 </div>
 
-<!-- SLIDE 17: Código completo do site com API -->
+<!-- SLIDE 17: Código completo do site com API - DETALHADO -->
 <div class="slide" id="slide-17">
-  <h2>💻 Código: Pokédex com PokeAPI (Front-End Puro)</h2>
-  <div class="two-cols">
+  <h2>💻 Código Detalhado: Pokédex com API</h2>
+  <p style="color:#f8d030;margin-bottom:15px;">Cada linha explicada — por que e como usamos cada recurso</p>
+  <div class="two-cols" style="font-size:0.9rem;">
     <div>
-      <h3>HTML (estrutura)</h3>
-      <div class="code-block" style="font-size:0.75rem">&lt;input id="busca" placeholder="Buscar..."&gt;
-&lt;div id="filtros"&gt;
-  &lt;button onclick="filtrar('fire')"&gt;Fogo&lt;/button&gt;
-  &lt;button onclick="filtrar('water')"&gt;Água&lt;/button&gt;
-&lt;/div&gt;
-&lt;div id="grid"&gt;&lt;/div&gt;
+      <h3>HTML — A Estrutura da Interface</h3>
+      <div class="code-block" style="font-size:0.72rem"><span style="color:#6a9955">&lt;!-- Campo de busca: o usuário digita e
+     dispara a função filtrar() --&gt;</span>
+&lt;input id="busca" oninput="<span style="color:#dcdcaa">filtrar()</span>"&gt;
 
-&lt;!-- Modal de detalhes --&gt;
-&lt;div id="modal"&gt;
-  &lt;img id="sprite"&gt;
-  &lt;h2 id="nome"&gt;&lt;/h2&gt;
-  &lt;div id="stats"&gt;&lt;/div&gt;
-&lt;/div&gt;</div>
-      <h3 style="margin-top:10px">Resultado Final</h3>
-      <p>→ <code>/pokedex.html</code> no projeto</p>
-      <p>Grid de cards, filtro por tipo, busca, modal com stats, e jogo interativo!</p>
+<span style="color:#6a9955">&lt;!-- Botões de filtro por tipo:
+     cada um chama filtrarPorTipo() com o
+     NOME DO TIPO como parâmetro.
+     'fire' não é valor fixo, é o ARGUMENTO
+     que diz qual tipo queremos mostrar --&gt;</span>
+&lt;button onclick="<span style="color:#dcdcaa">filtrarPorTipo('fire')</span>"&gt;
+  🔥 Fogo
+&lt;/button&gt;
+&lt;button onclick="<span style="color:#dcdcaa">filtrarPorTipo('water')</span>"&gt;
+  💧 Água
+&lt;/button&gt;
+
+<span style="color:#6a9955">&lt;!-- Container vazio: o JavaScript vai
+     PREENCHER este div com os cards
+     dinamicamente (sem recarregar a página) --&gt;</span>
+&lt;div id="<span style="color:#ce9178">grid</span>"&gt;&lt;/div&gt;
+
+<span style="color:#6a9955">&lt;!-- POR QUE essa estrutura?
+     O HTML define ONDE os dados vão aparecer.
+     O JS busca os dados e COLOCA aqui dentro.
+     Separação de responsabilidades! --&gt;</span></div>
     </div>
     <div>
-      <h3>JavaScript (lógica completa)</h3>
-      <div class="code-block" style="font-size:0.75rem"><span style="color:#6a9955">// 1. Carregar todos os Pokémons</span>
-async function carregarPokedex() {
-  const res = await fetch(
-    'https://pokeapi.co/api/v2/pokemon?limit=151'
-  );
-  const data = await res.json();
-  // data.results = [{name, url}, ...]
+      <h3>JavaScript — Explicação Linha a Linha</h3>
+      <div class="code-block" style="font-size:0.72rem"><span style="color:#6a9955">// ═══ ASYNC FUNCTION ═══
+// "async" = função ASSÍNCRONA
+// POR QUE? Porque fetch() demora (~200ms)
+// para ir até a API e voltar.
+// Sem async/await, o código continuaria
+// ANTES dos dados chegarem (seria undefined).
+// async/await FAZ O JS ESPERAR a resposta.</span>
 
-  <span style="color:#6a9955">// 2. Para cada um, buscar detalhes</span>
-  for (let poke of data.results) {
-    const detalhe = await fetch(poke.url);
-    const d = await detalhe.json();
-    
-    <span style="color:#6a9955">// 3. Renderizar card no HTML</span>
-    grid.innerHTML += `
+<span style="color:#569cd6">async function</span> <span style="color:#dcdcaa">carregarPokedex</span>() {
+
+  <span style="color:#6a9955">// ═══ FETCH + AWAIT ═══
+  // fetch() = faz uma requisição HTTP GET
+  // await = "espere a resposta chegar"
+  // Resultado: o JSON da API</span>
+  <span style="color:#569cd6">const</span> res = <span style="color:#569cd6">await</span> <span style="color:#dcdcaa">fetch</span>(
+    <span style="color:#ce9178">'https://pokeapi.co/api/v2/pokemon?limit=151'</span>
+  );
+  <span style="color:#569cd6">const</span> data = <span style="color:#569cd6">await</span> res.<span style="color:#dcdcaa">json</span>();
+
+  <span style="color:#6a9955">// ═══ DATA.RESULTS ═══
+  // A API retorna: { results: [...] }
+  // "results" é um ARRAY com 151 objetos
+  // Cada objeto: { name: "pikachu", url: "..." }
+  // POR QUE? A API organiza assim. Lemos
+  // a documentação para saber o formato.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 18: Continuação do código detalhado -->
+<div class="slide" id="slide-18">
+  <h2>💻 Código Detalhado (continuação)</h2>
+  <div class="two-cols" style="font-size:0.9rem;">
+    <div>
+      <h3>O Loop FOR — Buscando cada Pokémon</h3>
+      <div class="code-block" style="font-size:0.72rem"><span style="color:#6a9955">  // ═══ FOR...OF ═══
+  // POR QUE um loop? Porque data.results
+  // tem 151 Pokémons. Precisamos buscar
+  // os DETALHES de CADA UM individualmente
+  // (a lista só tem nome e URL).</span>
+
+  <span style="color:#569cd6">for</span> (<span style="color:#569cd6">let</span> poke <span style="color:#569cd6">of</span> data.results) {
+
+    <span style="color:#6a9955">// Cada "poke" é: {name:"bulbasaur", url:"..."}
+    // A URL leva aos detalhes completos</span>
+    <span style="color:#569cd6">const</span> detalhe = <span style="color:#569cd6">await</span> <span style="color:#dcdcaa">fetch</span>(poke.url);
+    <span style="color:#569cd6">const</span> d = <span style="color:#569cd6">await</span> detalhe.<span style="color:#dcdcaa">json</span>();
+
+    <span style="color:#6a9955">// Agora "d" tem TUDO:
+    // d.name = "bulbasaur"
+    // d.sprites.other['official-artwork']
+    //   .front_default = URL da imagem HD
+    // d.types[0].type.name = "grass"
+    // d.stats[0].base_stat = 45 (HP)</span></div>
+      <div class="highlight-box" style="margin-top:10px;">
+        <p>🔑 <strong>Resumo:</strong> O 1º fetch traz a LISTA. O 2º fetch (dentro do for) traz os DETALHES de cada um.</p>
+      </div>
+    </div>
+    <div>
+      <h3>innerHTML — Montando o HTML dinâmico</h3>
+      <div class="code-block" style="font-size:0.72rem"><span style="color:#6a9955">    // ═══ GRID.INNERHTML += ═══
+    // innerHTML = o conteúdo HTML dentro do div
+    // "+=" = ADICIONA ao que já existe (não apaga)
+    //
+    // POR QUE? O div "grid" começa VAZIO.
+    // A cada Pokémon do loop, ADICIONAMOS
+    // um card HTML novo com os dados da API.
+    //
+    // Template Literals (`...${variavel}...`)
+    // permitem misturar HTML com variáveis JS.</span>
+
+    grid.<span style="color:#dcdcaa">innerHTML</span> += <span style="color:#ce9178">`
       &lt;div class="card"&gt;
-        &lt;img src="${d.sprites.other
-          ['official-artwork']
-          .front_default}"&gt;
-        &lt;h5&gt;${d.name}&lt;/h5&gt;
-        &lt;span&gt;${d.types[0]
-          .type.name}&lt;/span&gt;
-      &lt;/div&gt;`;
-  }
+        &lt;img src="</span>${d.sprites.other
+          [<span style="color:#ce9178">'official-artwork'</span>]
+          .front_default}<span style="color:#ce9178">"&gt;
+        &lt;h5&gt;</span>${d.name}<span style="color:#ce9178">&lt;/h5&gt;
+        &lt;span&gt;</span>${d.types[0].type.name}<span style="color:#ce9178">&lt;/span&gt;
+      &lt;/div&gt;
+    `</span>;
+
+  } <span style="color:#6a9955">// fim do for</span>
 }
 
-<span style="color:#6a9955">// 4. Filtrar por tipo</span>
-function filtrar(tipo) {
-  pokemonsFiltrados = todos.filter(
-    p => p.types.includes(tipo)
-  );
-  renderizar();
+<span style="color:#6a9955">// ═══ CHAMAR A FUNÇÃO ═══
+// Sem esta linha, nada acontece!
+// Ela INICIA o processo de carregar dados.</span>
+<span style="color:#dcdcaa">carregarPokedex</span>();</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19: Filtro por tipo explicado -->
+<div class="slide" id="slide-19">
+  <h2>🔍 Filtrar por Tipo — Como e Por Quê</h2>
+  <div class="two-cols">
+    <div>
+      <h3>O conceito do filtro</h3>
+      <div class="highlight-box">
+        <p>Quando clicamos no botão <strong>"🔥 Fogo"</strong>, passamos o texto <code>'fire'</code> como argumento para a função.</p>
+        <p>A função percorre TODOS os Pokémons e verifica: "este Pokémon tem o tipo 'fire'?"</p>
+        <p>Se SIM → mostra. Se NÃO → esconde.</p>
+      </div>
+      <h3 style="margin-top:15px;">Fluxo visual</h3>
+      <div class="diagram" style="font-size:0.85rem;text-align:left;">
+1. Clique: filtrarPorTipo(<span style="color:#fd7d24">'fire'</span>)<br><br>
+2. Percorre 151 Pokémons:<br>
+   Bulbasaur [grass,poison] → ❌ esconde<br>
+   Charmander [<span style="color:#fd7d24">fire</span>] → ✅ mostra<br>
+   Squirtle [water] → ❌ esconde<br>
+   Charizard [<span style="color:#fd7d24">fire</span>,flying] → ✅ mostra<br><br>
+3. Resultado: só cards de Fogo na tela
+      </div>
+    </div>
+    <div>
+      <h3>O código explicado</h3>
+      <div class="code-block" style="font-size:0.75rem"><span style="color:#6a9955">// ═══ ARRAY.FILTER() ═══
+// .filter() cria um NOVO array contendo
+// apenas os itens que passam no teste.
+//
+// POR QUE .filter()?
+// Porque não queremos DELETAR os Pokémons,
+// só ESCONDER temporariamente.
+// O array original "todos" continua intacto.
+// Criamos um novo array "filtrados" só
+// com os que passam na condição.</span>
+
+<span style="color:#569cd6">let</span> todos = []; <span style="color:#6a9955">// todos os 151</span>
+
+<span style="color:#569cd6">function</span> <span style="color:#dcdcaa">filtrarPorTipo</span>(tipo) {
+
+  <span style="color:#6a9955">// "tipo" = o argumento recebido
+  // Ex: 'fire', 'water', 'grass'</span>
+
+  <span style="color:#569cd6">const</span> filtrados = todos.<span style="color:#dcdcaa">filter</span>(pokemon => {
+    <span style="color:#6a9955">// pokemon.types = ['fire', 'flying']
+    // .includes(tipo) = contém 'fire'?
+    // Se sim → TRUE → fica no array
+    // Se não → FALSE → é removido</span>
+    <span style="color:#569cd6">return</span> pokemon.types.<span style="color:#dcdcaa">includes</span>(tipo);
+  });
+
+  <span style="color:#6a9955">// Limpa a tela e mostra só os filtrados</span>
+  grid.innerHTML = <span style="color:#ce9178">''</span>;
+  filtrados.<span style="color:#dcdcaa">forEach</span>(p => {
+    grid.innerHTML += <span style="color:#ce9178">`&lt;div&gt;...&lt;/div&gt;`</span>;
+  });
 }</div>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 18: Encerramento -->
-<div class="slide slide-cover" id="slide-18">
+<!-- SLIDE 20: Encerramento -->
+<div class="slide slide-cover" id="slide-20">
   <div>
     <p class="emoji-big">🎓</p>
     <h1>Parabéns!</h1>
@@ -732,7 +857,7 @@ function filtrar(tipo) {
 
 <script>
   let currentSlide = 1;
-  const totalSlides = 18;
+  const totalSlides = 20;
 
   function showSlide(n) {
     document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
