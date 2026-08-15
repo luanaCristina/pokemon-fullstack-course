@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 Pokédex Interativa - Site com API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #1a1a2e; color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* Navbar */
+    .nav-custom { background: linear-gradient(90deg, #dc3545, #fd7d24); }
+    .nav-custom .nav-link { color: #fff !important; font-weight: 600; border-radius: 8px; margin: 0 4px; padding: 8px 16px; transition: background 0.2s; }
+    .nav-custom .nav-link:hover, .nav-custom .nav-link.active { background: rgba(255,255,255,0.2); }
+
+    /* Tabs content */
+    .tab-content-area { display: none; }
+    .tab-content-area.active { display: block; }
+
+    /* Pokemon cards */
+    .poke-card { background: #16213e; border-radius: 16px; padding: 15px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border: 2px solid transparent; }
+    .poke-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-color: #fd7d24; }
+    .poke-card img { width: 100px; height: 100px; object-fit: contain; }
+    .poke-card .poke-name { font-weight: 700; text-transform: capitalize; margin-top: 8px; }
+    .poke-card .poke-id { color: #888; font-size: 0.8rem; }
+
+    /* Type badges */
+    .type-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; margin: 2px; color: #fff; }
+
+    /* Type colors */
+    .type-fire { background: #fd7d24; } .type-water { background: #6890f0; }
+    .type-grass { background: #78c850; } .type-electric { background: #f8d030; color: #000; }
+    .type-normal { background: #a8a878; } .type-psychic { background: #f85888; }
+    .type-dragon { background: #7038f8; } .type-ghost { background: #705898; }
+    .type-rock { background: #b8a038; } .type-fighting { background: #c03028; }
+    .type-poison { background: #a040a0; } .type-bug { background: #a8b820; }
+    .type-flying { background: #a890f0; } .type-ice { background: #98d8d8; color: #000; }
+    .type-ground { background: #e0c068; color: #000; } .type-steel { background: #b8b8d0; color: #000; }
+    .type-dark { background: #705848; } .type-fairy { background: #ee99ac; color: #000; }
+
+    /* Filter buttons */
+    .filter-btn { border: 2px solid rgba(255,255,255,0.3); background: transparent; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; text-transform: capitalize; }
+    .filter-btn:hover, .filter-btn.active { background: #fd7d24; border-color: #fd7d24; }
+
+    /* Detail modal */
+    .detail-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
+    .detail-modal.show { display: flex; }
+    .detail-content { background: #16213e; border-radius: 20px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border: 2px solid #fd7d24; }
+    .detail-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #fff; background: none; border: none; }
+    .stat-bar-bg { background: #0f3460; border-radius: 10px; height: 12px; overflow: hidden; }
+    .stat-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+
+    /* Game section */
+    .game-area { background: #0f3460; border-radius: 16px; padding: 30px; text-align: center; }
+    .game-pokemon img { width: 200px; height: 200px; object-fit: contain; }
+    .game-options button { margin: 5px; padding: 10px 20px; border-radius: 10px; border: 2px solid #fff; background: transparent; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+    .game-options button:hover { background: #fd7d24; border-color: #fd7d24; }
+    .game-score { font-size: 1.5rem; font-weight: 800; color: #f8d030; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 60px; }
+    .loading .spinner { width: 50px; height: 50px; border: 4px solid #333; border-top-color: #fd7d24; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Search */
+    .search-box { background: #0f3460; border: 2px solid #333; border-radius: 12px; color: #fff; padding: 12px 20px; width: 100%; max-width: 400px; font-size: 1rem; }
+    .search-box:focus { outline: none; border-color: #fd7d24; }
+    .search-box::placeholder { color: #666; }
+
+    /* Pagination */
+    .pagination-btn { background: #fd7d24; color: #fff; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .pagination-btn:hover { background: #e56a10; }
+    .pagination-btn:disabled { background: #333; cursor: not-allowed; }
+
+    /* How to play */
+    .rule-card { background: #0f3460; border-radius: 12px; padding: 20px; text-align: center; }
+    .rule-card h3 { font-size: 2.5rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar com abas -->
+  <nav class="nav-custom p-3 shadow-lg sticky-top">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between">
+      <a href="/" class="text-white text-decoration-none fw-bold fs-5">⚡ Pokémon Trading App</a>
+      <div class="d-flex flex-wrap gap-1 mt-2 mt-md-0">
+        <button class="nav-link active" onclick="showTab('tab-pokedex')">📖 Pokédex</button>
+        <button class="nav-link" onclick="showTab('tab-game')">🎮 Jogo: Quem é esse Pokémon?</button>
+        <button class="nav-link" onclick="showTab('tab-howto')">❓ Como Jogar</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+
+    <!-- ================================================================ -->
+    <!-- TAB: POKÉDEX -->
+    <!-- ================================================================ -->
+    <div id="tab-pokedex" class="tab-content-area active">
+      <!-- Search + Filters -->
+      <div class="text-center mb-4">
+        <h1 class="fw-bold mb-3">📖 Pokédex Interativa</h1>
+        <p class="text-muted">Explore todos os Pokémons com dados da <strong>PokeAPI</strong></p>
+        <input type="text" class="search-box" id="search-input" placeholder="🔍 Buscar por nome ou número..." oninput="filtrarPokemons()">
+      </div>
+
+      <!-- Type filters -->
+      <div class="text-center mb-4" id="type-filters">
+        <button class="filter-btn active" onclick="filtrarPorTipo('all')">🌟 Todos</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('fire')">🔥 Fire</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('water')">💧 Water</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('grass')">🌿 Grass</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('electric')">⚡ Electric</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('psychic')">🔮 Psychic</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('dragon')">🐉 Dragon</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('ghost')">👻 Ghost</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('fighting')">🥊 Fighting</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('poison')">☠️ Poison</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('rock')">🪨 Rock</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('bug')">🐛 Bug</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('flying')">🦅 Flying</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('ice')">❄️ Ice</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('ground')">🏔️ Ground</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('fairy')">🧚 Fairy</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('dark')">🌑 Dark</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('steel')">⚙️ Steel</button>
+        <button class="filter-btn" onclick="filtrarPorTipo('normal')">⭐ Normal</button>
+      </div>
+
+      <!-- Pokemon Grid -->
+      <div id="pokemon-grid" class="row g-3"></div>
+
+      <!-- Loading -->
+      <div id="loading-pokedex" class="loading">
+        <div class="spinner"></div>
+        <p>Carregando Pokémons da PokeAPI...</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="text-center mt-4 d-flex justify-content-center gap-3" id="pagination">
+        <button class="pagination-btn" id="btn-prev" onclick="paginaAnterior()" disabled>← Anterior</button>
+        <span class="align-self-center" id="page-info">Página 1</span>
+        <button class="pagination-btn" id="btn-next" onclick="proximaPagina()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- TAB: JOGO -->
+    <!-- ================================================================ -->
+    <div id="tab-game" class="tab-content-area">
+      <div class="text-center mb-4">
+        <h1 class="fw-bold">🎮 Quem é esse Pokémon?</h1>
+        <p class="text-muted">Teste seus conhecimentos! Adivinhe o Pokémon pela silhueta.</p>
+        <div class="game-score">Pontuação: <span id="game-score">0</span> / <span id="game-total">0</span></div>
+      </div>
+
+      <div class="game-area" id="game-area">
+        <div class="game-pokemon mb-4">
+          <img id="game-img" src="" alt="Quem é esse Pokémon?" style="filter: brightness(0);">
+        </div>
+        <p class="fs-5 mb-3" id="game-hint"></p>
+        <div class="game-options" id="game-options"></div>
+        <div id="game-result" class="mt-3 fs-4 fw-bold"></div>
+        <button class="pagination-btn mt-3 d-none" id="btn-next-round" onclick="novaRodada()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- TAB: COMO JOGAR -->
+    <!-- ================================================================ -->
+    <div id="tab-howto" class="tab-content-area">
+      <div class="text-center mb-5">
+        <h1 class="fw-bold">❓ Como Usar Este Site</h1>
+        <p class="text-muted fs-5">Guia completo das funcionalidades</p>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-4">
+          <div class="rule-card h-100">
+            <h3>📖</h3>
+            <h5 class="fw-bold">Pokédex</h5>
+            <p class="text-muted">Explore mais de 150 Pokémons com dados reais da PokeAPI. Veja sprites HD, stats, habilidades e descrições da Pokédex oficial.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="rule-card h-100">
+            <h3>🔍</h3>
+            <h5 class="fw-bold">Buscar e Filtrar</h5>
+            <p class="text-muted">Use a barra de busca para encontrar por nome ou número. Filtre por tipo (Fogo, Água, Planta...) clicando nos botões coloridos.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="rule-card h-100">
+            <h3>📊</h3>
+            <h5 class="fw-bold">Detalhes Completos</h5>
+            <p class="text-muted">Clique em qualquer card para ver: stats com barras visuais, habilidades, peso, altura e descrição completa da Pokédex.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="fw-bold text-center mb-4">🎮 Como Jogar "Quem é esse Pokémon?"</h2>
+      <div class="row g-4 mb-5">
+        <div class="col-md-3">
+          <div class="rule-card h-100">
+            <h3>1️⃣</h3>
+            <h5 class="fw-bold">Observe a Silhueta</h5>
+            <p class="text-muted">Um Pokémon aparece todo preto (silhueta). Use sua memória para identificá-lo!</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="rule-card h-100">
+            <h3>2️⃣</h3>
+            <h5 class="fw-bold">Leia a Dica</h5>
+            <p class="text-muted">Abaixo da silhueta há uma dica com o tipo do Pokémon para te ajudar.</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="rule-card h-100">
+            <h3>3️⃣</h3>
+            <h5 class="fw-bold">Escolha a Resposta</h5>
+            <p class="text-muted">Clique em uma das 4 opções. Apenas uma está correta!</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="rule-card h-100">
+            <h3>4️⃣</h3>
+            <h5 class="fw-bold">Veja o Resultado</h5>
+            <p class="text-muted">Acertou? O Pokémon é revelado em cores! Errou? Tente na próxima rodada.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <h3 class="fw-bold mb-3">🌐 Sobre a PokeAPI</h3>
+        <p class="text-muted fs-5">Todos os dados vêm da <a href="https://pokeapi.co" target="_blank" class="text-warning">pokeapi.co</a> — uma API gratuita com informações de 1000+ Pokémons.</p>
+        <p class="text-muted">Sprites, stats, descrições, tipos e evoluções são todos buscados em tempo real via <code>fetch()</code>.</p>
+        <a href="/comparativo.html" class="btn btn-warning mt-3">📚 Ver: Dados Locais vs API Externa</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="detail-modal" id="detail-modal" onclick="fecharDetalhe(event)">
+    <div class="detail-content" onclick="event.stopPropagation()">
+      <button class="detail-close" onclick="fecharDetalhe()">&times;</button>
+      <div id="detail-body">
+        <div class="loading"><div class="spinner"></div><p>Carregando...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======================================================================
+    // STATE
+    // ======================================================================
+    let todosPokemons = [];
+    let pokemonsFiltrados = [];
+    let paginaAtual = 0;
+    const porPagina = 24;
+    let tipoAtivo = 'all';
+    let gameScore = 0;
+    let gameTotal = 0;
+    let gameCorrectId = null;
+
+    // ======================================================================
+    // TABS
+    // ======================================================================
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content-area').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (tabId === 'tab-game' && gameTotal === 0) novaRodada();
+    }
+
+    // ======================================================================
+    // POKÉDEX - Load all (first 151)
+    // ======================================================================
+    async function carregarPokedex() {
+      try {
+        const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
+        const data = await res.json();
+
+        // Fetch detalhes de todos em paralelo (batches)
+        const detalhes = await Promise.all(
+          data.results.map(async (p, i) => {
+            const id = i + 1;
+            return {
+              id,
+              name: p.name,
+              sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+              spriteSmall: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+              url: p.url
+            };
+          })
+        );
+
+        // Busca tipos de todos
+        const tiposRes = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
+        const tiposPromises = detalhes.map(async (p) => {
+          const r = await fetch(`https://pokeapi.co/api/v2/pokemon/${p.id}`);
+          const d = await r.json();
+          p.types = d.types.map(t => t.type.name);
+          p.stats = {};
+          d.stats.forEach(s => p.stats[s.stat.name] = s.base_stat);
+          return p;
+        });
+
+        todosPokemons = await Promise.all(tiposPromises);
+        pokemonsFiltrados = [...todosPokemons];
+
+        document.getElementById('loading-pokedex').style.display = 'none';
+        renderizarGrid();
+      } catch (e) {
+        console.error('Erro ao carregar Pokédex:', e);
+        document.getElementById('loading-pokedex').innerHTML = '<p class="text-danger">Erro ao conectar com a PokeAPI. Verifique sua internet.</p>';
+      }
+    }
+
+    // ======================================================================
+    // RENDER GRID
+    // ======================================================================
+    function renderizarGrid() {
+      const grid = document.getElementById('pokemon-grid');
+      const inicio = paginaAtual * porPagina;
+      const fim = inicio + porPagina;
+      const pagina = pokemonsFiltrados.slice(inicio, fim);
+
+      grid.innerHTML = pagina.map(p => `
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+          <div class="poke-card" onclick="abrirDetalhe(${p.id})">
+            <span class="poke-id">#${String(p.id).padStart(3, '0')}</span>
+            <img src="${p.sprite}" alt="${p.name}" loading="lazy">
+            <div class="poke-name">${p.name}</div>
+            <div>${p.types.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('')}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Pagination
+      document.getElementById('btn-prev').disabled = paginaAtual === 0;
+      document.getElementById('btn-next').disabled = fim >= pokemonsFiltrados.length;
+      document.getElementById('page-info').textContent = `Página ${paginaAtual + 1} de ${Math.ceil(pokemonsFiltrados.length / porPagina)}`;
+    }
+
+    function proximaPagina() { paginaAtual++; renderizarGrid(); window.scrollTo(0, 200); }
+    function paginaAnterior() { paginaAtual--; renderizarGrid(); window.scrollTo(0, 200); }
+
+    // ======================================================================
+    // FILTER BY TYPE
+    // ======================================================================
+    function filtrarPorTipo(tipo) {
+      tipoAtivo = tipo;
+      paginaAtual = 0;
+
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (tipo === 'all') {
+        pokemonsFiltrados = [...todosPokemons];
+      } else {
+        pokemonsFiltrados = todosPokemons.filter(p => p.types.includes(tipo));
+      }
+
+      // Aplica busca por texto também
+      const texto = document.getElementById('search-input').value.toLowerCase();
+      if (texto) {
+        pokemonsFiltrados = pokemonsFiltrados.filter(p =>
+          p.name.includes(texto) || String(p.id) === texto
+        );
+      }
+
+      renderizarGrid();
+    }
+
+    // ======================================================================
+    // SEARCH
+    // ======================================================================
+    function filtrarPokemons() {
+      const texto = document.getElementById('search-input').value.toLowerCase();
+      paginaAtual = 0;
+
+      pokemonsFiltrados = todosPokemons.filter(p => {
+        const matchTipo = tipoAtivo === 'all' || p.types.includes(tipoAtivo);
+        const matchTexto = !texto || p.name.includes(texto) || String(p.id) === texto;
+        return matchTipo && matchTexto;
+      });
+
+      renderizarGrid();
+    }
+
+    // ======================================================================
+    // DETAIL MODAL
+    // ======================================================================
+    async function abrirDetalhe(id) {
+      const modal = document.getElementById('detail-modal');
+      const body = document.getElementById('detail-body');
+      modal.classList.add('show');
+      body.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando detalhes...</p></div>';
+
+      try {
+        const [pokeRes, speciesRes] = await Promise.all([
+          fetch(`https://pokeapi.co/api/v2/pokemon/${id}`),
+          fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`)
+        ]);
+
+        const poke = await pokeRes.json();
+        const species = await speciesRes.json();
+
+        // Description
+        const flavorEntries = species.flavor_text_entries || [];
+        const ptEntry = flavorEntries.find(e => e.language.name === 'pt-BR' || e.language.name === 'pt');
+        const enEntry = flavorEntries.find(e => e.language.name === 'en');
+        const descricao = (ptEntry || enEntry)?.flavor_text.replace(/\n|\f/g, ' ') || 'Sem descrição.';
+
+        // Stats
+        const statNames = { hp: 'HP', attack: 'Ataque', defense: 'Defesa', 'special-attack': 'Atq. Esp.', 'special-defense': 'Def. Esp.', speed: 'Velocidade' };
+        const statColors = { hp: '#ff5555', attack: '#ff8800', defense: '#ffd700', 'special-attack': '#6890f0', 'special-defense': '#78c850', speed: '#f85888' };
+
+        const statsHtml = poke.stats.map(s => {
+          const pct = Math.min((s.base_stat / 150) * 100, 100);
+          return `<div class="d-flex align-items-center mb-2">
+            <small style="width:85px;color:#aaa">${statNames[s.stat.name] || s.stat.name}</small>
+            <div class="stat-bar-bg flex-grow-1">
+              <div class="stat-bar-fill" style="width:${pct}%;background:${statColors[s.stat.name] || '#fd7d24'}"></div>
+            </div>
+            <small class="ms-2 fw-bold" style="width:30px">${s.base_stat}</small>
+          </div>`;
+        }).join('');
+
+        const tipos = poke.types.map(t => `<span class="type-badge type-${t.type.name}">${t.type.name}</span>`).join(' ');
+        const habilidades = poke.abilities.map(a => `<span class="badge bg-secondary me-1 text-capitalize">${a.ability.name.replace('-', ' ')}</span>`).join('');
+        const sprite = poke.sprites.other['official-artwork'].front_default || poke.sprites.front_default;
+
+        body.innerHTML = `
+          <div class="text-center mb-3">
+            <img src="${sprite}" alt="${poke.name}" style="width:200px;height:200px;object-fit:contain;">
+            <h2 class="fw-bold text-capitalize mt-2">${poke.name}</h2>
+            <span class="poke-id fs-5">#${String(poke.id).padStart(3, '0')}</span>
+            <div class="mt-2">${tipos}</div>
+          </div>
+          <p class="fst-italic text-center" style="color:#aaa;border-left:3px solid #fd7d24;padding-left:15px;">"${descricao}"</p>
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <h6 class="fw-bold" style="color:#fd7d24">📊 Estatísticas Base</h6>
+              ${statsHtml}
+            </div>
+            <div class="col-md-6">
+              <h6 class="fw-bold" style="color:#fd7d24">📋 Informações</h6>
+              <p><strong>Peso:</strong> ${poke.weight / 10} kg</p>
+              <p><strong>Altura:</strong> ${poke.height / 10} m</p>
+              <p><strong>Experiência Base:</strong> ${poke.base_experience}</p>
+              <h6 class="fw-bold mt-3" style="color:#fd7d24">🎯 Habilidades</h6>
+              <div>${habilidades}</div>
+              <h6 class="fw-bold mt-3" style="color:#fd7d24">📈 Total Stats</h6>
+              <p class="fs-4 fw-bold" style="color:#f8d030">${poke.stats.reduce((sum, s) => sum + s.base_stat, 0)}</p>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        body.innerHTML = '<p class="text-danger text-center">Erro ao carregar detalhes.</p>';
+      }
+    }
+
+    function fecharDetalhe(e) {
+      if (!e || e.target === document.getElementById('detail-modal')) {
+        document.getElementById('detail-modal').classList.remove('show');
+      }
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharDetalhe(true); });
+
+    // ======================================================================
+    // GAME: QUEM É ESSE POKÉMON?
+    // ======================================================================
+    async function novaRodada() {
+      const area = document.getElementById('game-area');
+      const img = document.getElementById('game-img');
+      const options = document.getElementById('game-options');
+      const result = document.getElementById('game-result');
+      const btnNext = document.getElementById('btn-next-round');
+
+      result.textContent = '';
+      btnNext.classList.add('d-none');
+      img.style.filter = 'brightness(0)';
+
+      // Sorteia 4 Pokémons aleatórios
+      const ids = [];
+      while (ids.length < 4) {
+        const id = Math.floor(Math.random() * 151) + 1;
+        if (!ids.includes(id)) ids.push(id);
+      }
+
+      // Sorteia qual é o correto
+      const correctIdx = Math.floor(Math.random() * 4);
+      gameCorrectId = ids[correctIdx];
+
+      // Carrega dados do correto para a dica
+      try {
+        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${gameCorrectId}`);
+        const data = await res.json();
+
+        img.src = data.sprites.other['official-artwork'].front_default || data.sprites.front_default;
+        const tipos = data.types.map(t => t.type.name).join(', ');
+        document.getElementById('game-hint').innerHTML = `<span style="color:#f8d030">Dica:</span> Tipo(s): <strong>${tipos}</strong>`;
+
+        // Busca nomes dos 4
+        const nomes = await Promise.all(ids.map(async id => {
+          const r = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+          const d = await r.json();
+          return { id, name: d.name };
+        }));
+
+        options.innerHTML = nomes.map(n => `
+          <button onclick="responderGame(${n.id}, '${n.name}')">${n.name}</button>
+        `).join('');
+
+      } catch (e) {
+        result.textContent = 'Erro ao carregar rodada. Tente novamente.';
+      }
+    }
+
+    function responderGame(idEscolhido, nomeEscolhido) {
+      const img = document.getElementById('game-img');
+      const result = document.getElementById('game-result');
+      const btnNext = document.getElementById('btn-next-round');
+      const options = document.getElementById('game-options');
+
+      gameTotal++;
+      document.getElementById('game-total').textContent = gameTotal;
+
+      // Desabilita botões
+      options.querySelectorAll('button').forEach(b => b.style.pointerEvents = 'none');
+
+      if (idEscolhido === gameCorrectId) {
+        gameScore++;
+        document.getElementById('game-score').textContent = gameScore;
+        img.style.filter = 'none';
+        result.innerHTML = `<span style="color:#78c850">✅ Correto! É o <strong class="text-capitalize">${nomeEscolhido}</strong>!</span>`;
+      } else {
+        img.style.filter = 'none';
+        const correto = todosPokemons.find(p => p.id === gameCorrectId);
+        result.innerHTML = `<span style="color:#ff5555">❌ Errado! Era o <strong class="text-capitalize">${correto?.name || 'Pokémon'}</strong>!</span>`;
+      }
+
+      // Highlight correct
+      options.querySelectorAll('button').forEach(b => {
+        if (b.textContent.trim() === todosPokemons.find(p => p.id === gameCorrectId)?.name) {
+          b.style.background = '#78c850';
+          b.style.borderColor = '#78c850';
+        }
+      });
+
+      btnNext.classList.remove('d-none');
+    }
+
+    // ======================================================================
+    // INIT
+    // ======================================================================
+    carregarPokedex();
+  </script>
+</body>
+</html>
