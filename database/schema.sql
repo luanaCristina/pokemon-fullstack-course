@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS pokemons (
   ataque INT NOT NULL,
   hp INT NOT NULL,
   sprite_url VARCHAR(255) NOT NULL,
+  vitorias INT NOT NULL DEFAULT 0,
   CONSTRAINT fk_pokemons_usuarios
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     ON DELETE CASCADE

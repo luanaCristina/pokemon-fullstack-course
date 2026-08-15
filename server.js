@@ -338,9 +338,41 @@ app.post('/api/trocas/:id/aceitar', autenticarSessao, async (req, res) => {
 });
 
 // ============================================================================
-// MÓDULO DE BATALHA
+// MÓDULO DE BATALHA (com sistema de vitórias e evolução)
 // ============================================================================
 
+// Mapa de evoluções dos Pokémons
+const EVOLUCOES = {
+  'Bulbasaur':  { nome: 'Ivysaur', tipo: 'Planta', ataque: 62, hp: 60, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png' },
+  'Ivysaur':    { nome: 'Venusaur', tipo: 'Planta', ataque: 82, hp: 80, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png' },
+  'Charmander': { nome: 'Charmeleon', tipo: 'Fogo', ataque: 64, hp: 58, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png' },
+  'Charmeleon': { nome: 'Charizard', tipo: 'Fogo', ataque: 84, hp: 78, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png' },
+  'Squirtle':   { nome: 'Wartortle', tipo: 'Água', ataque: 63, hp: 59, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png' },
+  'Wartortle':  { nome: 'Blastoise', tipo: 'Água', ataque: 83, hp: 79, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png' },
+  'Pikachu':    { nome: 'Raichu', tipo: 'Elétrico', ataque: 90, hp: 60, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png' },
+  'Eevee':      { nome: 'Flareon', tipo: 'Fogo', ataque: 130, hp: 65, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/136.png' },
+  'Jigglypuff': { nome: 'Wigglytuff', tipo: 'Normal', ataque: 70, hp: 140, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/40.png' },
+  'Geodude':    { nome: 'Graveler', tipo: 'Pedra', ataque: 95, hp: 55, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/75.png' },
+  'Graveler':   { nome: 'Golem', tipo: 'Pedra', ataque: 120, hp: 80, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/76.png' },
+  'Gengar':     { nome: 'Mega Gengar', tipo: 'Fantasma', ataque: 170, hp: 60, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png' },
+  'Dragonite':  { nome: 'Dragonite Mega', tipo: 'Dragão', ataque: 160, hp: 91, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png' }
+};
+
+// Pokémons selvagens que aparecem na batalha
+const SELVAGENS = [
+  { nome: 'Rattata', tipo: 'Normal', ataque: 30, hp: 30, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png' },
+  { nome: 'Pidgey', tipo: 'Normal', ataque: 35, hp: 40, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png' },
+  { nome: 'Zubat', tipo: 'Veneno', ataque: 40, hp: 40, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/41.png' },
+  { nome: 'Machop', tipo: 'Lutador', ataque: 55, hp: 70, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/66.png' },
+  { nome: 'Abra', tipo: 'Psíquico', ataque: 60, hp: 25, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/63.png' },
+  { nome: 'Gastly', tipo: 'Fantasma', ataque: 65, hp: 30, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/92.png' },
+  { nome: 'Onix', tipo: 'Pedra', ataque: 70, hp: 35, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png' },
+  { nome: 'Scyther', tipo: 'Inseto', ataque: 80, hp: 70, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/123.png' },
+  { nome: 'Magikarp', tipo: 'Água', ataque: 10, hp: 20, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/129.png' },
+  { nome: 'Dratini', tipo: 'Dragão', ataque: 64, hp: 41, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/147.png' }
+];
+
+// POST /api/desafio/batalhar - Batalha com exibição dos dois Pokémons
 app.post('/api/desafio/batalhar', autenticarSessao, async (req, res) => {
   const { meuPokemonId } = req.body;
 
@@ -355,38 +387,117 @@ app.post('/api/desafio/batalhar', autenticarSessao, async (req, res) => {
     }
 
     const meuPokemon = pokemons[0];
-    const ataqueSelvagem = Math.floor(Math.random() * 70) + 10;
-    const vitoria = meuPokemon.ataque > ataqueSelvagem;
+
+    // Sorteia um Pokémon selvagem
+    const selvagem = { ...SELVAGENS[Math.floor(Math.random() * SELVAGENS.length)] };
+    // Variação aleatória no ataque do selvagem (+/- 20%)
+    selvagem.ataque = Math.floor(selvagem.ataque * (0.8 + Math.random() * 0.4));
+
+    const vitoria = meuPokemon.ataque > selvagem.ataque;
 
     if (vitoria) {
-      const premios = [
-        { nome: 'Mewtwo', tipo: 'Psíquico', ataque: 110, hp: 106, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png' },
-        { nome: 'Dragonite', tipo: 'Dragão', ataque: 134, hp: 91, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png' },
-        { nome: 'Gengar', tipo: 'Fantasma', ataque: 65, hp: 60, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png' }
-      ];
-
-      const premio = premios[Math.floor(Math.random() * premios.length)];
-
+      // Incrementa vitórias do Pokémon
+      const novasVitorias = (meuPokemon.vitorias || 0) + 1;
       await db.execute(
-        'INSERT INTO pokemons (usuario_id, nome, tipo, nivel, ataque, hp, sprite_url) VALUES (?, ?, ?, 50, ?, ?, ?)',
-        [req.session.usuarioId, premio.nome, premio.tipo, premio.ataque, premio.hp, premio.sprite]
+        'UPDATE pokemons SET vitorias = ? WHERE id = ?',
+        [novasVitorias, meuPokemon.id]
       );
+
+      // Verifica se pode evoluir (5 vitórias)
+      const podeEvoluir = novasVitorias >= 5 && EVOLUCOES[meuPokemon.nome] !== undefined;
 
       return res.json({
         resultado: 'VITÓRIA',
-        mensagem: `Seu ${meuPokemon.nome} (Ataque: ${meuPokemon.ataque}) venceu o Selvagem (Ataque: ${ataqueSelvagem}). Capturou um ${premio.nome}!`,
-        vitoria: true
+        vitoria: true,
+        meuPokemon: {
+          id: meuPokemon.id,
+          nome: meuPokemon.nome,
+          tipo: meuPokemon.tipo,
+          ataque: meuPokemon.ataque,
+          hp: meuPokemon.hp,
+          sprite_url: meuPokemon.sprite_url,
+          vitorias: novasVitorias
+        },
+        selvagem: selvagem,
+        podeEvoluir: podeEvoluir,
+        evolucao: podeEvoluir ? EVOLUCOES[meuPokemon.nome] : null,
+        mensagem: `Seu ${meuPokemon.nome} (Ataque: ${meuPokemon.ataque}) venceu ${selvagem.nome} (Ataque: ${selvagem.ataque})!`
       });
     }
 
     res.json({
       resultado: 'DERROTA',
-      mensagem: `O Selvagem (Ataque: ${ataqueSelvagem}) era mais forte que ${meuPokemon.nome} (Ataque: ${meuPokemon.ataque}). Treine mais!`,
-      vitoria: false
+      vitoria: false,
+      meuPokemon: {
+        id: meuPokemon.id,
+        nome: meuPokemon.nome,
+        tipo: meuPokemon.tipo,
+        ataque: meuPokemon.ataque,
+        hp: meuPokemon.hp,
+        sprite_url: meuPokemon.sprite_url,
+        vitorias: meuPokemon.vitorias || 0
+      },
+      selvagem: selvagem,
+      mensagem: `${selvagem.nome} (Ataque: ${selvagem.ataque}) era mais forte que ${meuPokemon.nome} (Ataque: ${meuPokemon.ataque}). Treine mais!`
     });
 
   } catch (erro) {
     res.status(500).json({ erro: 'Erro na batalha.' });
+  }
+});
+
+// POST /api/desafio/capturar - Captura o Pokémon selvagem derrotado
+app.post('/api/desafio/capturar', autenticarSessao, async (req, res) => {
+  const { nome, tipo, ataque, hp, sprite } = req.body;
+
+  try {
+    const [result] = await db.execute(
+      'INSERT INTO pokemons (usuario_id, nome, tipo, nivel, ataque, hp, sprite_url, vitorias) VALUES (?, ?, ?, 1, ?, ?, ?, 0)',
+      [req.session.usuarioId, nome, tipo, ataque, hp, sprite]
+    );
+
+    res.status(201).json({ mensagem: `${nome} foi capturado e adicionado à sua coleção!` });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Erro ao capturar.' });
+  }
+});
+
+// POST /api/desafio/evoluir - Evolui o Pokémon (troca nome, stats e sprite)
+app.post('/api/desafio/evoluir', autenticarSessao, async (req, res) => {
+  const { pokemonId } = req.body;
+
+  try {
+    const [pokemons] = await db.execute(
+      'SELECT * FROM pokemons WHERE id = ? AND usuario_id = ?',
+      [pokemonId, req.session.usuarioId]
+    );
+
+    if (pokemons.length === 0) {
+      return res.status(404).json({ erro: 'Pokémon não encontrado.' });
+    }
+
+    const pokemon = pokemons[0];
+    const evolucao = EVOLUCOES[pokemon.nome];
+
+    if (!evolucao) {
+      return res.status(400).json({ erro: 'Este Pokémon não possui evolução disponível.' });
+    }
+
+    if ((pokemon.vitorias || 0) < 5) {
+      return res.status(400).json({ erro: 'Precisa de 5 vitórias para evoluir.' });
+    }
+
+    await db.execute(
+      'UPDATE pokemons SET nome = ?, tipo = ?, ataque = ?, hp = ?, sprite_url = ?, nivel = nivel + 10, vitorias = 0 WHERE id = ?',
+      [evolucao.nome, evolucao.tipo, evolucao.ataque, evolucao.hp, evolucao.sprite, pokemonId]
+    );
+
+    res.json({
+      mensagem: `${pokemon.nome} evoluiu para ${evolucao.nome}!`,
+      evolucao: evolucao
+    });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Erro ao evoluir.' });
   }
 });
 
