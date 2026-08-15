@@ -161,19 +161,34 @@
   <!-- Modal Editar Perfil -->
   <div class="modal fade" id="modalPerfil" tabindex="-1">
 
-  <!-- Modal Descrição do Pokémon -->
+  <!-- Modal Descrição do Pokémon (dados da PokeAPI) -->
   <div class="modal fade" id="modalDescricao" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header bg-info text-white">
-          <h5 class="modal-title" id="descricao-titulo">📖 Descrição</h5>
+          <h5 class="modal-title" id="descricao-titulo">📖 Pokédex</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body text-center">
-          <img id="descricao-sprite" src="" alt="" style="width:120px;height:120px;object-fit:contain;">
-          <h4 id="descricao-nome" class="mt-2 fw-bold"></h4>
-          <span id="descricao-tipo" class="badge rounded-pill mb-3"></span>
-          <p id="descricao-texto" class="text-muted fs-5 mt-2" style="font-style:italic;"></p>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-5 text-center">
+              <img id="descricao-sprite" src="" alt="" style="width:200px;height:200px;object-fit:contain;">
+              <h4 id="descricao-nome" class="mt-2 fw-bold text-capitalize"></h4>
+              <div id="descricao-tipos" class="mb-2"></div>
+              <small class="text-muted" id="descricao-fisico"></small>
+            </div>
+            <div class="col-md-7">
+              <p id="descricao-texto" class="fs-6 fst-italic border-start border-3 border-info ps-3 mb-3"></p>
+              <h6 class="fw-bold">📊 Estatísticas Base</h6>
+              <div id="descricao-stats"></div>
+              <h6 class="fw-bold mt-3">🎯 Habilidades</h6>
+              <div id="descricao-habilidades"></div>
+            </div>
+          </div>
+          <div id="descricao-loading" class="text-center py-4 d-none">
+            <div class="spinner-border text-info" role="status"></div>
+            <p class="mt-2 text-muted">Consultando Pokédex...</p>
+          </div>
         </div>
       </div>
     </div>

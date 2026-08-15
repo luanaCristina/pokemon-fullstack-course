@@ -77,16 +77,149 @@ const DESCRICOES_POKEMON = {
   'Mewtwo Mega': 'Na mega-evolução, todo seu poder psíquico se concentra. Capaz de destruir montanhas com o pensamento.'
 };
 
-// GET /api/pokemon/descricao/:nome - Retorna descrição de um Pokémon
-app.get('/api/pokemon/descricao/:nome', (req, res) => {
-  const nome = req.params.nome;
-  const descricao = DESCRICOES_POKEMON[nome];
+// GET /api/pokemon/descricao/:nome - Busca descrição e dados da PokeAPI
+app.get('/api/pokemon/descricao/:nome', async (req, res) => {
+  const nome = req.params.nome.toLowerCase().replace(/ /g, '-');
 
-  if (descricao) {
-    return res.json({ nome, descricao });
+  try {
+    // Busca dados básicos do Pokémon
+    const pokeRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`);
+
+    if (!pokeRes.ok) {
+      return res.json({
+        nome: req.params.nome,
+        descricao: 'Descrição não disponível para este Pokémon.',
+        sprite: null,
+        tipos: [],
+        stats: {}
+      });
+    }
+
+    const pokeData = await pokeRes.json();
+
+    // Busca a species para pegar a descrição em português
+    const speciesRes = await fetch(pokeData.species.url);
+    const speciesData = await speciesRes.json();
+
+    // Procura descrição em português, fallback para inglês
+    let descricao = '';
+    const flavorEntries = speciesData.flavor_text_entries || [];
+    const ptEntry = flavorEntries.find(e => e.language.name === 'pt-BR' || e.language.name === 'pt');
+    const enEntry = flavorEntries.find(e => e.language.name === 'en');
+
+    if (ptEntry) {
+      descricao = ptEntry.flavor_text.replace(/\n|\f/g, ' ');
+    } else if (enEntry) {
+      descricao = enEntry.flavor_text.replace(/\n|\f/g, ' ');
+    } else {
+      descricao = 'Descrição não disponível.';
+    }
+
+    // Extrai stats
+    const stats = {};
+    pokeData.stats.forEach(s => {
+      stats[s.stat.name] = s.base_stat;
+    });
+
+    // Extrai tipos
+    const tipos = pokeData.types.map(t => t.type.name);
+
+    // Extrai habilidades
+    const habilidades = pokeData.abilities.map(a => a.ability.name);
+
+    // Sprite oficial (artwork se disponível, senão sprite padrão)
+    const sprite = pokeData.sprites.other['official-artwork'].front_default
+      || pokeData.sprites.front_default;
+
+    res.json({
+      nome: pokeData.name,
+      nomeOriginal: req.params.nome,
+      descricao,
+      sprite,
+      spriteAnimado: pokeData.sprites.other.showdown?.front_default || pokeData.sprites.front_default,
+      tipos,
+      habilidades,
+      stats,
+      peso: pokeData.weight / 10,
+      altura: pokeData.height / 10,
+      id: pokeData.id
+    });
+
+  } catch (erro) {
+    console.error('Erro ao consultar PokeAPI:', erro.message);
+    res.json({
+      nome: req.params.nome,
+      descricao: 'Erro ao buscar dados do Pokémon na PokeAPI.',
+      sprite: null,
+      tipos: [],
+      stats: {}
+    });
   }
+});
 
-  res.json({ nome, descricao: 'Descrição não disponível para este Pokémon.' });
+// GET /api/pokemon/evolucao/:nome - Busca cadeia de evolução da PokeAPI
+app.get('/api/pokemon/evolucao/:nome', async (req, res) => {
+  const nome = req.params.nome.toLowerCase().replace(/ /g, '-');
+
+  try {
+    const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${nome}`);
+    if (!speciesRes.ok) {
+      return res.json({ evolucao: null, mensagem: 'Pokémon não encontrado na PokeAPI.' });
+    }
+
+    const speciesData = await speciesRes.json();
+    const evoChainRes = await fetch(speciesData.evolution_chain.url);
+    const evoChainData = await evoChainRes.json();
+
+    // Percorre a cadeia para encontrar a próxima evolução
+    let proximaEvolucao = null;
+
+    function percorrerCadeia(chain) {
+      if (chain.species.name === nome) {
+        if (chain.evolves_to && chain.evolves_to.length > 0) {
+          proximaEvolucao = chain.evolves_to[0].species.name;
+        }
+        return;
+      }
+      if (chain.evolves_to) {
+        chain.evolves_to.forEach(evo => percorrerCadeia(evo));
+      }
+    }
+
+    percorrerCadeia(evoChainData.chain);
+
+    if (!proximaEvolucao) {
+      return res.json({ evolucao: null, mensagem: 'Este Pokémon já está em sua forma final.' });
+    }
+
+    // Busca dados da evolução
+    const evoPokeRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${proximaEvolucao}`);
+    const evoPokeData = await evoPokeRes.json();
+
+    const stats = {};
+    evoPokeData.stats.forEach(s => {
+      stats[s.stat.name] = s.base_stat;
+    });
+
+    const sprite = evoPokeData.sprites.other['official-artwork'].front_default
+      || evoPokeData.sprites.front_default;
+
+    res.json({
+      evolucao: {
+        nome: proximaEvolucao.charAt(0).toUpperCase() + proximaEvolucao.slice(1),
+        tipo: evoPokeData.types[0].type.name,
+        ataque: stats.attack || 50,
+        hp: stats.hp || 50,
+        sprite: sprite,
+        spritePadrao: evoPokeData.sprites.front_default,
+        stats
+      }
+    });
+
+  } catch (erro) {
+    console.error('Erro na cadeia de evolução:', erro.message);
+    res.json({ evolucao: null, mensagem: 'Erro ao buscar evolução.' });
+  }
 });
 
 // ============================================================================
@@ -453,8 +586,52 @@ app.post('/api/desafio/batalhar', autenticarSessao, async (req, res) => {
         [novasVitorias, meuPokemon.id]
       );
 
-      // Verifica se pode evoluir (5 vitórias)
-      const podeEvoluir = novasVitorias >= 5 && EVOLUCOES[meuPokemon.nome] !== undefined;
+      // Verifica se pode evoluir (5 vitórias) consultando a PokeAPI
+      let podeEvoluir = false;
+      let evolucaoInfo = null;
+
+      if (novasVitorias >= 5) {
+        try {
+          const nomeLower = meuPokemon.nome.toLowerCase().replace(/ /g, '-');
+          const evoCheckRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${nomeLower}`);
+          if (evoCheckRes.ok) {
+            const speciesData = await evoCheckRes.json();
+            const evoChainRes = await fetch(speciesData.evolution_chain.url);
+            const evoChainData = await evoChainRes.json();
+
+            let proximaEvolucao = null;
+            function percorrerCadeia(chain) {
+              if (chain.species.name === nomeLower) {
+                if (chain.evolves_to && chain.evolves_to.length > 0) {
+                  proximaEvolucao = chain.evolves_to[0].species.name;
+                }
+                return;
+              }
+              if (chain.evolves_to) {
+                chain.evolves_to.forEach(evo => percorrerCadeia(evo));
+              }
+            }
+            percorrerCadeia(evoChainData.chain);
+
+            if (proximaEvolucao) {
+              const evoPokeRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${proximaEvolucao}`);
+              const evoPokeData = await evoPokeRes.json();
+              const evoSprite = evoPokeData.sprites.other['official-artwork'].front_default || evoPokeData.sprites.front_default;
+
+              podeEvoluir = true;
+              evolucaoInfo = {
+                nome: proximaEvolucao.charAt(0).toUpperCase() + proximaEvolucao.slice(1),
+                tipo: evoPokeData.types[0].type.name,
+                ataque: evoPokeData.stats.find(s => s.stat.name === 'attack').base_stat,
+                hp: evoPokeData.stats.find(s => s.stat.name === 'hp').base_stat,
+                sprite: evoSprite
+              };
+            }
+          }
+        } catch (evoErr) {
+          console.error('Erro ao verificar evolução:', evoErr.message);
+        }
+      }
 
       return res.json({
         resultado: 'VITÓRIA',
@@ -470,7 +647,7 @@ app.post('/api/desafio/batalhar', autenticarSessao, async (req, res) => {
         },
         selvagem: selvagem,
         podeEvoluir: podeEvoluir,
-        evolucao: podeEvoluir ? EVOLUCOES[meuPokemon.nome] : null,
+        evolucao: evolucaoInfo,
         mensagem: `Seu ${meuPokemon.nome} (Ataque: ${meuPokemon.ataque}) venceu ${selvagem.nome} (Ataque: ${selvagem.ataque})!`
       });
     }
@@ -512,7 +689,7 @@ app.post('/api/desafio/capturar', autenticarSessao, async (req, res) => {
   }
 });
 
-// POST /api/desafio/evoluir - Evolui o Pokémon (troca nome, stats e sprite)
+// POST /api/desafio/evoluir - Evolui usando dados reais da PokeAPI
 app.post('/api/desafio/evoluir', autenticarSessao, async (req, res) => {
   const { pokemonId } = req.body;
 
@@ -527,15 +704,21 @@ app.post('/api/desafio/evoluir', autenticarSessao, async (req, res) => {
     }
 
     const pokemon = pokemons[0];
-    const evolucao = EVOLUCOES[pokemon.nome];
-
-    if (!evolucao) {
-      return res.status(400).json({ erro: 'Este Pokémon não possui evolução disponível.' });
-    }
 
     if ((pokemon.vitorias || 0) < 5) {
       return res.status(400).json({ erro: 'Precisa de 5 vitórias para evoluir.' });
     }
+
+    // Busca evolução na PokeAPI
+    const nomeLower = pokemon.nome.toLowerCase().replace(/ /g, '-');
+    const evoRes = await fetch(`http://localhost:${PORT}/api/pokemon/evolucao/${nomeLower}`);
+    const evoData = await evoRes.json();
+
+    if (!evoData.evolucao) {
+      return res.status(400).json({ erro: 'Este Pokémon já está em sua forma final.' });
+    }
+
+    const evolucao = evoData.evolucao;
 
     await db.execute(
       'UPDATE pokemons SET nome = ?, tipo = ?, ataque = ?, hp = ?, sprite_url = ?, nivel = nivel + 10, vitorias = 0 WHERE id = ?',
@@ -547,6 +730,7 @@ app.post('/api/desafio/evoluir', autenticarSessao, async (req, res) => {
       evolucao: evolucao
     });
   } catch (erro) {
+    console.error('Erro ao evoluir:', erro);
     res.status(500).json({ erro: 'Erro ao evoluir.' });
   }
 });

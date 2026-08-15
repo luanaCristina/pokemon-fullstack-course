@@ -435,8 +435,58 @@ async function carregarMeusPokemons() {
   </table>
 </div>
 
-<!-- SLIDE 12: Passo a Passo -->
+<!-- SLIDE 12: PokeAPI -->
 <div class="slide" id="slide-12">
+  <h2>🔌 Integração com PokeAPI</h2>
+  <p>A aplicação consome dados reais da <code>https://pokeapi.co/api/v2</code> para descrições, sprites oficiais, stats e cadeia de evolução.</p>
+  <div class="two-cols">
+    <div>
+      <h3>Endpoints Consumidos</h3>
+      <div class="highlight-box">
+        <p><code>GET /pokemon/{name}</code> → Stats, sprites, tipos</p>
+        <p><code>GET /pokemon-species/{name}</code> → Descrição (flavor_text)</p>
+        <p><code>GET /evolution-chain/{id}</code> → Cadeia de evolução</p>
+      </div>
+      <h3>O que obtemos</h3>
+      <div class="highlight-box">
+        <p>🖼️ Official Artwork (sprites HD)</p>
+        <p>📊 Stats base (HP, Ataque, Defesa...)</p>
+        <p>📖 Descrição em português (Pokédex)</p>
+        <p>🔄 Próxima evolução com dados reais</p>
+      </div>
+    </div>
+    <div>
+      <div class="code-block">// No servidor Node.js (server.js)
+app.get('/api/pokemon/descricao/:nome',
+  async (req, res) => {
+
+  // 1. Busca dados do Pokémon
+  const pokeRes = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${nome}`
+  );
+  const pokeData = await pokeRes.json();
+
+  // 2. Busca descrição (species)
+  const speciesRes = await fetch(
+    pokeData.species.url
+  );
+  const speciesData = await speciesRes.json();
+
+  // 3. Retorna dados combinados
+  res.json({
+    sprite: pokeData.sprites.other
+      ['official-artwork'].front_default,
+    descricao: speciesData
+      .flavor_text_entries[0].flavor_text,
+    stats: pokeData.stats
+  });
+});</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: Passo a Passo -->
+<div class="slide" id="slide-13">
   <h2>🚀 Passo a Passo - Como Desenvolver</h2>
   <div class="two-cols">
     <div>
@@ -470,8 +520,8 @@ async function carregarMeusPokemons() {
   </div>
 </div>
 
-<!-- SLIDE 13: Encerramento -->
-<div class="slide slide-cover" id="slide-13">
+<!-- SLIDE 14: Encerramento -->
+<div class="slide slide-cover" id="slide-14">
   <div>
     <p class="emoji-big">🎓</p>
     <h1>Parabéns!</h1>
@@ -482,6 +532,7 @@ async function carregarMeusPokemons() {
       <p>✅ Node.js + Express + MySQL</p>
       <p>✅ API RESTful com CRUD Completo</p>
       <p>✅ JavaScript Assíncrono (Fetch API)</p>
+      <p>✅ Integração com API Externa (PokeAPI)</p>
     </div>
     <p style="margin-top:40px;font-size:1.3rem;font-weight:600;">🚀 Agora é praticar e evoluir!</p>
   </div>
@@ -495,7 +546,7 @@ async function carregarMeusPokemons() {
 
 <script>
   let currentSlide = 1;
-  const totalSlides = 13;
+  const totalSlides = 14;
 
   function showSlide(n) {
     document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));

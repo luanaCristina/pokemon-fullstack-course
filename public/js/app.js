@@ -452,9 +452,20 @@ async function evoluirPokemon(pokemonId) {
 
     const data = await res.json();
     if (res.ok) {
-      alert(data.mensagem);
-      document.getElementById('resultado-batalha').innerHTML = '';
-      carregarBatalha();
+      const resultDiv = document.getElementById('resultado-batalha');
+      resultDiv.innerHTML = `
+        <div class="resultado-vitoria">
+          <h4>🌟 Evolução Completa!</h4>
+          <div class="text-center my-3">
+            <img src="${data.evolucao.sprite}" style="width:150px;height:150px;" alt="${data.evolucao.nome}">
+            <h3 class="mt-2 fw-bold">${data.evolucao.nome}</h3>
+            <p>Tipo: ${data.evolucao.tipo} | Ataque: ${data.evolucao.ataque} | HP: ${data.evolucao.hp}</p>
+          </div>
+          <p>${data.mensagem}</p>
+          <button class="btn btn-outline-light mt-2" onclick="document.getElementById('resultado-batalha').innerHTML=''; carregarBatalha();">
+            Continuar
+          </button>
+        </div>`;
     } else {
       alert(data.erro);
     }
@@ -465,28 +476,92 @@ async function evoluirPokemon(pokemonId) {
 
 
 // ============================================================================
-// DESCRIÇÃO DO POKÉMON
+// DESCRIÇÃO DO POKÉMON (via PokeAPI)
 // ============================================================================
 
+const TIPO_CORES = {
+  fire: '#fd7d24', water: '#6890f0', grass: '#78c850', electric: '#f8d030',
+  normal: '#a8a878', psychic: '#f85888', dragon: '#7038f8', ghost: '#705898',
+  rock: '#b8a038', fighting: '#c03028', poison: '#a040a0', bug: '#a8b820',
+  flying: '#a890f0', ice: '#98d8d8', ground: '#e0c068', steel: '#b8b8d0',
+  dark: '#705848', fairy: '#ee99ac'
+};
+
 async function verDescricao(nome, tipo, sprite) {
+  const modal = new bootstrap.Modal(document.getElementById('modalDescricao'));
+  modal.show();
+
+  // Mostra loading
+  document.getElementById('descricao-loading').classList.remove('d-none');
+  document.getElementById('descricao-sprite').style.display = 'none';
+  document.getElementById('descricao-nome').textContent = '';
+  document.getElementById('descricao-texto').textContent = '';
+  document.getElementById('descricao-stats').innerHTML = '';
+  document.getElementById('descricao-habilidades').innerHTML = '';
+  document.getElementById('descricao-tipos').innerHTML = '';
+  document.getElementById('descricao-fisico').textContent = '';
+
   try {
     const res = await fetch(`/api/pokemon/descricao/${encodeURIComponent(nome)}`);
     const data = await res.json();
 
-    document.getElementById('descricao-titulo').textContent = `📖 ${nome}`;
-    document.getElementById('descricao-nome').textContent = nome;
-    document.getElementById('descricao-sprite').src = sprite;
+    document.getElementById('descricao-loading').classList.add('d-none');
+    document.getElementById('descricao-sprite').style.display = 'block';
+
+    // Sprite (oficial artwork da PokeAPI)
+    document.getElementById('descricao-sprite').src = data.sprite || sprite;
     document.getElementById('descricao-sprite').alt = nome;
-    document.getElementById('descricao-texto').textContent = data.descricao;
 
-    const badgeEl = document.getElementById('descricao-tipo');
-    badgeEl.textContent = tipo;
-    badgeEl.className = `badge ${getBadgeClass(tipo)} rounded-pill px-3 py-2`;
+    // Nome e título
+    document.getElementById('descricao-titulo').textContent = `📖 #${data.id || '???'} ${nome}`;
+    document.getElementById('descricao-nome').textContent = nome;
 
-    const modal = new bootstrap.Modal(document.getElementById('modalDescricao'));
-    modal.show();
+    // Tipos com cores
+    const tiposDiv = document.getElementById('descricao-tipos');
+    if (data.tipos && data.tipos.length > 0) {
+      tiposDiv.innerHTML = data.tipos.map(t => {
+        const cor = TIPO_CORES[t] || '#999';
+        return `<span class="badge rounded-pill me-1 px-3 py-2" style="background-color:${cor}">${t}</span>`;
+      }).join('');
+    }
+
+    // Dados físicos
+    if (data.peso && data.altura) {
+      document.getElementById('descricao-fisico').textContent = `Peso: ${data.peso}kg | Altura: ${data.altura}m`;
+    }
+
+    // Descrição
+    document.getElementById('descricao-texto').textContent = data.descricao || 'Sem descrição.';
+
+    // Stats com barras de progresso
+    const statsDiv = document.getElementById('descricao-stats');
+    if (data.stats) {
+      const nomesStat = { hp: 'HP', attack: 'Ataque', defense: 'Defesa', 'special-attack': 'Atq. Esp.', 'special-defense': 'Def. Esp.', speed: 'Velocidade' };
+      statsDiv.innerHTML = Object.entries(data.stats).map(([key, val]) => {
+        const pct = Math.min((val / 150) * 100, 100);
+        const label = nomesStat[key] || key;
+        return `<div class="d-flex align-items-center mb-1">
+          <small class="text-muted" style="width:80px">${label}</small>
+          <div class="progress flex-grow-1" style="height:10px">
+            <div class="progress-bar bg-info" style="width:${pct}%"></div>
+          </div>
+          <small class="ms-2 fw-bold" style="width:30px">${val}</small>
+        </div>`;
+      }).join('');
+    }
+
+    // Habilidades
+    const habDiv = document.getElementById('descricao-habilidades');
+    if (data.habilidades && data.habilidades.length > 0) {
+      habDiv.innerHTML = data.habilidades.map(h =>
+        `<span class="badge bg-secondary me-1 text-capitalize">${h.replace('-', ' ')}</span>`
+      ).join('');
+    }
+
   } catch (e) {
-    console.error('Erro ao buscar descrição:', e);
+    document.getElementById('descricao-loading').classList.add('d-none');
+    document.getElementById('descricao-texto').textContent = 'Erro ao carregar dados.';
+    console.error('Erro:', e);
   }
 }
 

@@ -212,6 +212,54 @@ A apresentação cobre todo o conteúdo do curso em **13 slides interativos**:
 
 ---
 
+## 🔌 Integração com PokeAPI
+
+O projeto consome dados reais da [PokeAPI](https://pokeapi.co/api/v2) para enriquecer a experiência:
+
+### Endpoints da PokeAPI Utilizados
+
+| Endpoint | Uso no Projeto |
+|----------|---------------|
+| `GET /pokemon/{name}` | Stats base, sprites oficiais (artwork), tipos e habilidades |
+| `GET /pokemon-species/{name}` | Descrição (flavor_text) em português/inglês, cadeia de evolução URL |
+| `GET /evolution-chain/{id}` | Cadeia completa de evolução para determinar a próxima forma |
+
+### Como funciona
+
+1. **Descrição (📖 botão nos cards):** Ao clicar, o servidor faz 2 chamadas à PokeAPI:
+   - Busca o Pokémon → extrai sprites HD, stats, tipos e habilidades
+   - Busca a species → extrai a descrição da Pokédex em português (fallback: inglês)
+
+2. **Evolução (após 5 vitórias):** O servidor consulta a cadeia de evolução:
+   - Busca a species do Pokémon atual → obtém URL da evolution-chain
+   - Percorre a cadeia para encontrar a próxima forma
+   - Busca os dados da evolução → retorna sprite, stats e tipo reais
+
+3. **Sprites:** Usa o Official Artwork (`sprites.other.official-artwork.front_default`) como imagem principal no modal de descrição.
+
+### Exemplo de Fluxo (Código Simplificado)
+
+```javascript
+// Servidor busca dados reais da PokeAPI
+const pokeRes = await fetch('https://pokeapi.co/api/v2/pokemon/pikachu');
+const pokeData = await pokeRes.json();
+
+// Sprite HD oficial
+const sprite = pokeData.sprites.other['official-artwork'].front_default;
+
+// Stats (hp, attack, defense, etc)
+const stats = {};
+pokeData.stats.forEach(s => stats[s.stat.name] = s.base_stat);
+
+// Busca descrição da Pokédex
+const speciesRes = await fetch(pokeData.species.url);
+const speciesData = await speciesRes.json();
+const descricao = speciesData.flavor_text_entries
+  .find(e => e.language.name === 'en').flavor_text;
+```
+
+---
+
 ## 🔌 API Endpoints
 
 ### Autenticação
@@ -237,6 +285,14 @@ A apresentação cobre todo o conteúdo do curso em **13 slides interativos**:
 | POST | `/api/trocas/propor` | Propõe troca entre treinadores |
 | POST | `/api/trocas/:id/aceitar` | Aceita e executa troca |
 | POST | `/api/desafio/batalhar` | Batalha contra Pokémon selvagem |
+| POST | `/api/desafio/capturar` | Captura Pokémon selvagem derrotado |
+| POST | `/api/desafio/evoluir` | Evolui Pokémon (5 vitórias, dados da PokeAPI) |
+
+### PokeAPI (Dados Externos)
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/pokemon/descricao/:nome` | Busca descrição, stats e sprite HD da PokeAPI |
+| GET | `/api/pokemon/evolucao/:nome` | Busca próxima evolução na cadeia evolutiva |
 
 ---
 
