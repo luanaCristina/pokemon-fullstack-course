@@ -127,6 +127,71 @@ app.get('/api/sessao', (req, res) => {
   res.json({ logado: false });
 });
 
+// GET /api/perfil - Buscar dados do perfil do usuário logado
+app.get('/api/perfil', autenticarSessao, async (req, res) => {
+  try {
+    const [linhas] = await db.execute(
+      'SELECT id, nome, email, criado_em FROM usuarios WHERE id = ?',
+      [req.session.usuarioId]
+    );
+
+    if (linhas.length === 0) {
+      return res.status(404).json({ erro: 'Usuário não encontrado.' });
+    }
+
+    res.json(linhas[0]);
+  } catch (erro) {
+    res.status(500).json({ erro: 'Erro ao buscar perfil.' });
+  }
+});
+
+// PUT /api/perfil - Atualizar dados do perfil
+app.put('/api/perfil', autenticarSessao, async (req, res) => {
+  const { nome, email, senhaAtual, novaSenha } = req.body;
+
+  if (!nome || !email) {
+    return res.status(400).json({ erro: 'Nome e e-mail são obrigatórios.' });
+  }
+
+  try {
+    // Se quiser trocar a senha, valida a senha atual
+    if (novaSenha) {
+      if (!senhaAtual) {
+        return res.status(400).json({ erro: 'Informe a senha atual para alterá-la.' });
+      }
+
+      const [check] = await db.execute(
+        'SELECT id FROM usuarios WHERE id = ? AND senha = ?',
+        [req.session.usuarioId, senhaAtual]
+      );
+
+      if (check.length === 0) {
+        return res.status(401).json({ erro: 'Senha atual incorreta.' });
+      }
+
+      await db.execute(
+        'UPDATE usuarios SET nome = ?, email = ?, senha = ? WHERE id = ?',
+        [nome, email, novaSenha, req.session.usuarioId]
+      );
+    } else {
+      await db.execute(
+        'UPDATE usuarios SET nome = ?, email = ? WHERE id = ?',
+        [nome, email, req.session.usuarioId]
+      );
+    }
+
+    // Atualiza nome na sessão
+    req.session.usuarioNome = nome;
+
+    res.json({ mensagem: 'Perfil atualizado com sucesso!' });
+  } catch (erro) {
+    if (erro.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ erro: 'Este e-mail já está em uso.' });
+    }
+    res.status(500).json({ erro: 'Erro ao atualizar perfil.' });
+  }
+});
+
 // ============================================================================
 // CRUD DE POKÉMONS
 // ============================================================================

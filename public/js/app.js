@@ -342,3 +342,73 @@ async function batalhar(meuPokemonId) {
     console.error('Erro:', e);
   }
 }
+
+
+// ============================================================================
+// PERFIL DO USUÁRIO
+// ============================================================================
+
+async function abrirPerfil() {
+  try {
+    const res = await fetch('/api/perfil');
+    if (!res.ok) return;
+
+    const perfil = await res.json();
+
+    document.getElementById('perfil-nome').value = perfil.nome;
+    document.getElementById('perfil-email').value = perfil.email;
+    document.getElementById('perfil-criado').value = new Date(perfil.criado_em).toLocaleDateString('pt-BR');
+    document.getElementById('perfil-senha-atual').value = '';
+    document.getElementById('perfil-nova-senha').value = '';
+    document.getElementById('perfil-mensagem').innerHTML = '';
+
+    const modal = new bootstrap.Modal(document.getElementById('modalPerfil'));
+    modal.show();
+  } catch (e) {
+    console.error('Erro ao carregar perfil:', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const formPerfil = document.getElementById('form-perfil');
+  if (formPerfil) {
+    formPerfil.addEventListener('submit', salvarPerfil);
+  }
+});
+
+async function salvarPerfil(event) {
+  event.preventDefault();
+
+  const dados = {
+    nome: document.getElementById('perfil-nome').value,
+    email: document.getElementById('perfil-email').value
+  };
+
+  const senhaAtual = document.getElementById('perfil-senha-atual').value;
+  const novaSenha = document.getElementById('perfil-nova-senha').value;
+
+  if (novaSenha) {
+    dados.senhaAtual = senhaAtual;
+    dados.novaSenha = novaSenha;
+  }
+
+  const msgDiv = document.getElementById('perfil-mensagem');
+
+  try {
+    const res = await fetch('/api/perfil', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      msgDiv.innerHTML = `<div class="alert alert-success">${data.mensagem}</div>`;
+    } else {
+      msgDiv.innerHTML = `<div class="alert alert-danger">${data.erro}</div>`;
+    }
+  } catch (e) {
+    msgDiv.innerHTML = '<div class="alert alert-danger">Erro de conexão.</div>';
+  }
+}
