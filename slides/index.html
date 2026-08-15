@@ -958,8 +958,58 @@ data.sprites.other
   </div>
 </div>
 
-<!-- SLIDE 20: Encerramento -->
-<div class="slide slide-cover" id="slide-20">
+<!-- SLIDE 20: Deploy Online -->
+<div class="slide" id="slide-20">
+  <h2>🌍 Como Publicar Online (Deploy)</h2>
+  <p style="color:#f8d030;">Para os alunos acessarem de qualquer lugar, sem instalar nada!</p>
+  <div class="two-cols">
+    <div>
+      <h3>Render.com (Gratuito)</h3>
+      <div class="highlight-box" style="font-size:0.85rem;">
+        <p><strong>1.</strong> Crie conta em <code>render.com</code> (use GitHub)</p>
+        <p><strong>2.</strong> Clique "New" → "Web Service"</p>
+        <p><strong>3.</strong> Conecte o repositório GitHub</p>
+        <p><strong>4.</strong> Configure:</p>
+        <p>&nbsp;&nbsp;• Runtime: <code>Node</code></p>
+        <p>&nbsp;&nbsp;• Build: <code>npm install</code></p>
+        <p>&nbsp;&nbsp;• Start: <code>node server.js</code></p>
+        <p><strong>5.</strong> Clique "Create Web Service"</p>
+        <p><strong>6.</strong> Em ~2min sua URL está ativa! 🎉</p>
+      </div>
+      <div class="highlight-box" style="margin-top:10px;font-size:0.85rem;">
+        <p><strong>O que funciona online sem banco:</strong></p>
+        <p>✅ Slides, Pokédex, Jogo, Comparativo</p>
+        <p>✅ Login/Cadastro (memória temporária)</p>
+        <p>❌ Dados persistentes (precisa MySQL)</p>
+      </div>
+    </div>
+    <div>
+      <h3>Como funciona?</h3>
+      <div class="diagram" style="font-size:0.85rem;text-align:left;">
+Seu Código (GitHub)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ push<br>
+Render detecta o commit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ npm install<br>
+Render instala dependências<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ node server.js<br>
+Servidor online! 🌐<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+URL pública: <span style="color:#78c850">https://seu-app.onrender.com</span>
+      </div>
+      <h3 style="margin-top:15px;">Rodar Local (completo)</h3>
+      <div class="code-block" style="font-size:0.75rem">git clone https://github.com/SEU_USER/
+  pokemon-fullstack-course.git
+cd pokemon-fullstack-course
+npm install
+mysql -u root -p < database/schema.sql
+npm run dev
+<span style="color:#6a9955"># Acesse: http://localhost:3000</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 21: Encerramento -->
+<div class="slide slide-cover" id="slide-21">
   <div>
     <p class="emoji-big">🎓</p>
     <h1>Parabéns!</h1>
@@ -986,7 +1036,7 @@ data.sprites.other
 
 <script>
   let currentSlide = 1;
-  const totalSlides = 20;
+  const totalSlides = 21;
 
   function showSlide(n) {
     document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
