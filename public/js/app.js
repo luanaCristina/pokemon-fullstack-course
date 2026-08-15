@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('form-login').addEventListener('submit', fazerLogin);
   document.getElementById('form-cadastro').addEventListener('submit', fazerCadastro);
   document.getElementById('form-novo-pokemon').addEventListener('submit', cadastrarPokemon);
+  document.getElementById('form-perfil').addEventListener('submit', salvarPerfil);
 });
 
 // ============================================================================
@@ -572,7 +573,16 @@ async function verDescricao(nome, tipo, sprite) {
 async function abrirPerfil() {
   try {
     const res = await fetch('/api/perfil');
-    if (!res.ok) return;
+    
+    if (res.status === 401) {
+      alert('Faça login primeiro.');
+      return;
+    }
+    
+    if (!res.ok) {
+      alert('Erro ao carregar perfil.');
+      return;
+    }
 
     const perfil = await res.json();
 
@@ -581,21 +591,20 @@ async function abrirPerfil() {
     document.getElementById('perfil-criado').value = new Date(perfil.criado_em).toLocaleDateString('pt-BR');
     document.getElementById('perfil-senha-atual').value = '';
     document.getElementById('perfil-nova-senha').value = '';
+    document.getElementById('perfil-confirma-senha').value = '';
     document.getElementById('perfil-mensagem').innerHTML = '';
+
+    // Fecha qualquer modal aberto antes
+    const existingModal = bootstrap.Modal.getInstance(document.getElementById('modalPerfil'));
+    if (existingModal) existingModal.dispose();
 
     const modal = new bootstrap.Modal(document.getElementById('modalPerfil'));
     modal.show();
   } catch (e) {
     console.error('Erro ao carregar perfil:', e);
+    alert('Erro ao abrir perfil. Verifique se está logado.');
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const formPerfil = document.getElementById('form-perfil');
-  if (formPerfil) {
-    formPerfil.addEventListener('submit', salvarPerfil);
-  }
-});
 
 async function salvarPerfil(event) {
   event.preventDefault();
@@ -607,8 +616,17 @@ async function salvarPerfil(event) {
 
   const senhaAtual = document.getElementById('perfil-senha-atual').value;
   const novaSenha = document.getElementById('perfil-nova-senha').value;
+  const confirmaSenha = document.getElementById('perfil-confirma-senha').value;
 
   if (novaSenha) {
+    if (!senhaAtual) {
+      document.getElementById('perfil-mensagem').innerHTML = '<div class="alert alert-danger">Informe a senha atual para alterar.</div>';
+      return;
+    }
+    if (novaSenha !== confirmaSenha) {
+      document.getElementById('perfil-mensagem').innerHTML = '<div class="alert alert-danger">A nova senha e a confirmação não coincidem.</div>';
+      return;
+    }
     dados.senhaAtual = senhaAtual;
     dados.novaSenha = novaSenha;
   }
@@ -625,9 +643,9 @@ async function salvarPerfil(event) {
     const data = await res.json();
 
     if (res.ok) {
-      msgDiv.innerHTML = `<div class="alert alert-success">${data.mensagem}</div>`;
+      msgDiv.innerHTML = `<div class="alert alert-success">✅ ${data.mensagem}</div>`;
     } else {
-      msgDiv.innerHTML = `<div class="alert alert-danger">${data.erro}</div>`;
+      msgDiv.innerHTML = `<div class="alert alert-danger">❌ ${data.erro}</div>`;
     }
   } catch (e) {
     msgDiv.innerHTML = '<div class="alert alert-danger">Erro de conexão.</div>';
