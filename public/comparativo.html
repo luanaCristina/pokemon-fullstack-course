@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📚 Comparativo: Dados Locais vs API Externa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+    .hero { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; padding: 60px 0; }
+    .hero h1 { font-size: 2.5rem; font-weight: 800; }
+    .approach-card { border-radius: 16px; transition: transform 0.2s; }
+    .approach-card:hover { transform: translateY(-3px); }
+    .local-side { border-top: 4px solid #fd7d24; }
+    .api-side { border-top: 4px solid #6890f0; }
+    .code-box { background: #1e1e1e; color: #d4d4d4; border-radius: 10px; padding: 20px; font-family: 'Fira Code', monospace; font-size: 0.85rem; overflow-x: auto; white-space: pre; }
+    .code-box .keyword { color: #569cd6; }
+    .code-box .string { color: #ce9178; }
+    .code-box .comment { color: #6a9955; }
+    .code-box .func { color: #dcdcaa; }
+    .vs-badge { font-size: 2rem; font-weight: 900; color: #dc3545; }
+    .pokemon-display { min-height: 200px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .pokemon-display img { width: 150px; height: 150px; object-fit: contain; }
+    .stat-bar { height: 8px; border-radius: 4px; }
+    .tag-local { background: #fd7d24; color: #fff; }
+    .tag-api { background: #6890f0; color: #fff; }
+    .comparison-table th { background: #1a1a2e; color: #fff; }
+    .section-divider { border-top: 2px dashed #ddd; margin: 50px 0; }
+    .tip-box { background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; padding: 16px; }
+    .warning-box { background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; padding: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero text-center">
+    <div class="container">
+      <h1>📚 Dados Locais <span class="text-warning">vs</span> API Externa</h1>
+      <p class="lead mt-3">Entenda a diferença entre criar seus próprios dados e consumir APIs que já existem no mercado</p>
+      <p class="opacity-75">Como programadores, temos duas abordagens: construir do zero ou integrar com serviços existentes</p>
+    </div>
+  </section>
+
+  <div class="container my-5">
+
+    <!-- Introdução Conceitual -->
+    <section class="mb-5">
+      <h2 class="fw-bold mb-4">🎯 O que vamos aprender aqui?</h2>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card approach-card local-side h-100 shadow-sm">
+            <div class="card-body">
+              <h4 class="fw-bold">🔨 Abordagem 1: Dados Locais (Hardcoded)</h4>
+              <p>Você <strong>cria manualmente</strong> todas as informações dentro do seu código. Os dados vivem no servidor como constantes, arrays ou objetos JavaScript.</p>
+              <ul>
+                <li>Controle total sobre os dados</li>
+                <li>Funciona offline (sem dependência externa)</li>
+                <li>Dados limitados ao que você escreveu</li>
+                <li>Manutenção manual para cada alteração</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card approach-card api-side h-100 shadow-sm">
+            <div class="card-body">
+              <h4 class="fw-bold">🌐 Abordagem 2: API Externa (PokeAPI)</h4>
+              <p>Você <strong>consome dados de terceiros</strong> via HTTP. Uma API pública fornece informações atualizadas e completas sem que você precise criá-las.</p>
+              <ul>
+                <li>Dados ricos e sempre atualizados</li>
+                <li>Milhares de registros disponíveis</li>
+                <li>Depende de conexão com internet</li>
+                <li>Pode ter limites de uso (rate limiting)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Demonstração Lado a Lado -->
+    <section class="mb-5">
+      <h2 class="fw-bold mb-4">⚡ Demonstração Prática: Buscar dados do Pikachu</h2>
+      <p class="text-muted mb-4">Veja o mesmo Pokémon sendo exibido com dados locais e com dados da PokeAPI. Clique nos botões para carregar cada abordagem.</p>
+
+      <div class="row g-4">
+        <!-- Lado LOCAL -->
+        <div class="col-lg-6">
+          <div class="card local-side shadow">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <span class="badge tag-local px-3 py-2">🔨 DADOS LOCAIS</span>
+              <button class="btn btn-warning btn-sm" onclick="carregarLocal()">Carregar (Local)</button>
+            </div>
+            <div class="card-body">
+              <div class="pokemon-display" id="display-local">
+                <p class="text-muted">Clique em "Carregar" para ver os dados locais</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lado API -->
+        <div class="col-lg-6">
+          <div class="card api-side shadow">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <span class="badge tag-api px-3 py-2">🌐 POKEAPI</span>
+              <button class="btn btn-primary btn-sm" onclick="carregarAPI()">Carregar (API)</button>
+            </div>
+            <div class="card-body">
+              <div class="pokemon-display" id="display-api">
+                <p class="text-muted">Clique em "Carregar" para buscar na PokeAPI</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seletor de Pokémon -->
+      <div class="text-center mt-4">
+        <label class="form-label fw-bold">Escolha um Pokémon para comparar:</label>
+        <select id="pokemon-selector" class="form-select w-auto d-inline-block ms-2">
+          <option value="pikachu" data-id="25">Pikachu</option>
+          <option value="bulbasaur" data-id="1">Bulbasaur</option>
+          <option value="charmander" data-id="4">Charmander</option>
+          <option value="squirtle" data-id="7">Squirtle</option>
+          <option value="eevee" data-id="133">Eevee</option>
+          <option value="gengar" data-id="94">Gengar</option>
+          <option value="dragonite" data-id="149">Dragonite</option>
+        </select>
+        <button class="btn btn-dark ms-2" onclick="carregarAmbos()">Comparar Ambos</button>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Código Lado a Lado -->
+    <section class="mb-5">
+      <h2 class="fw-bold mb-4">💻 Comparando o Código</h2>
+
+      <div class="row g-4">
+        <!-- Código Local -->
+        <div class="col-lg-6">
+          <h5><span class="badge tag-local">DADOS LOCAIS</span> server.js</h5>
+          <div class="code-box">
+<span class="comment">// Os dados são escritos MANUALMENTE no código</span>
+<span class="keyword">const</span> DESCRICOES = {
+  <span class="string">'Pikachu'</span>: <span class="string">'Quando vários destes Pokémon se
+    reúnem, a eletricidade pode causar
+    tempestades de raios.'</span>,
+  <span class="string">'Charmander'</span>: <span class="string">'A chama em sua cauda indica
+    sua força vital.'</span>,
+  <span class="comment">// Precisa adicionar CADA Pokémon manualmente</span>
+  <span class="comment">// Se quiser 800 Pokémons = 800 linhas!</span>
+};
+
+<span class="comment">// Rota simples: retorna do objeto local</span>
+app.<span class="func">get</span>(<span class="string">'/api/pokemon/:nome'</span>, (req, res) => {
+  <span class="keyword">const</span> descricao = DESCRICOES[req.params.nome];
+  res.<span class="func">json</span>({ descricao });
+});</div>
+          <div class="tip-box mt-3">
+            <strong>✅ Vantagens:</strong> Rápido, funciona offline, sem dependência externa, zero latência.
+          </div>
+          <div class="warning-box mt-2">
+            <strong>⚠️ Limitações:</strong> Apenas 7 Pokémons, dados podem ficar desatualizados, trabalho manual para cada novo registro.
+          </div>
+        </div>
+
+        <!-- Código API -->
+        <div class="col-lg-6">
+          <h5><span class="badge tag-api">API EXTERNA</span> server.js</h5>
+          <div class="code-box">
+<span class="comment">// Os dados vêm da PokeAPI (1000+ Pokémons!)</span>
+app.<span class="func">get</span>(<span class="string">'/api/pokemon/:nome'</span>,
+  <span class="keyword">async</span> (req, res) => {
+
+  <span class="comment">// 1. Busca dados na API externa</span>
+  <span class="keyword">const</span> pokeRes = <span class="keyword">await</span> <span class="func">fetch</span>(
+    <span class="string">`https://pokeapi.co/api/v2/pokemon/
+      ${req.params.nome}`</span>
+  );
+  <span class="keyword">const</span> data = <span class="keyword">await</span> pokeRes.<span class="func">json</span>();
+
+  <span class="comment">// 2. Busca descrição (outro endpoint)</span>
+  <span class="keyword">const</span> specRes = <span class="keyword">await</span> <span class="func">fetch</span>(
+    data.species.url
+  );
+  <span class="keyword">const</span> specData = <span class="keyword">await</span> specRes.<span class="func">json</span>();
+
+  <span class="comment">// 3. Retorna dados REAIS e COMPLETOS</span>
+  res.<span class="func">json</span>({
+    sprite: data.sprites.other[<span class="string">'official-artwork'</span>]
+      .front_default,
+    stats: data.stats,
+    descricao: specData.flavor_text_entries[0]
+  });
+});</div>
+          <div class="tip-box mt-3">
+            <strong>✅ Vantagens:</strong> 1000+ Pokémons, dados completos (stats, habilidades, evoluções), sprites HD oficiais, sempre atualizado.
+          </div>
+          <div class="warning-box mt-2">
+            <strong>⚠️ Limitações:</strong> Precisa de internet, latência na resposta (~200ms), pode ficar fora do ar, limites de requisição.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Tabela Comparativa -->
+    <section class="mb-5">
+      <h2 class="fw-bold mb-4">📊 Tabela Comparativa</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered shadow-sm">
+          <thead>
+            <tr class="comparison-table">
+              <th>Critério</th>
+              <th>🔨 Dados Locais (Hardcoded)</th>
+              <th>🌐 API Externa (PokeAPI)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fw-bold">Quantidade de dados</td>
+              <td>Apenas o que você escreveu (7 Pokémons)</td>
+              <td>1000+ Pokémons com dados completos</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Velocidade</td>
+              <td>⚡ Instantâneo (dados na memória)</td>
+              <td>~200-500ms (requisição HTTP externa)</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Funciona offline?</td>
+              <td>✅ Sim, 100%</td>
+              <td>❌ Não, precisa de internet</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Manutenção</td>
+              <td>Manual (editar código para cada novo dado)</td>
+              <td>Automática (API atualiza sozinha)</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Imagens/Sprites</td>
+              <td>Sprites básicos (96x96px)</td>
+              <td>Official Artwork HD (475x475px)</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Descrição Pokédex</td>
+              <td>Texto escrito por você</td>
+              <td>Texto oficial em português da Pokédex</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Stats (Ataque, HP...)</td>
+              <td>Valores inventados/simplificados</td>
+              <td>Valores base oficiais dos jogos</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Evoluções</td>
+              <td>Mapa manual limitado</td>
+              <td>Cadeia completa via /evolution-chain</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Complexidade do código</td>
+              <td>Simples (objeto JavaScript)</td>
+              <td>Intermediário (async/await + fetch + tratamento de erros)</td>
+            </tr>
+            <tr>
+              <td class="fw-bold">Quando usar?</td>
+              <td>Protótipos rápidos, apps offline, dados proprietários</td>
+              <td>Apps completos, dados públicos, quando precisar de escala</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Lição Principal -->
+    <section class="mb-5">
+      <h2 class="fw-bold mb-4">🎓 Lição para o Programador</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm text-center p-4">
+            <h1 class="mb-3">🔨</h1>
+            <h5 class="fw-bold">Crie do Zero</h5>
+            <p class="text-muted">Quando os dados são seus (ex: cadastros de usuários, produtos da sua loja, conteúdo proprietário).</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm text-center p-4">
+            <h1 class="mb-3">🌐</h1>
+            <h5 class="fw-bold">Use APIs Existentes</h5>
+            <p class="text-muted">Quando os dados já existem (ex: clima, CEP, cotações, mapas, redes sociais, Pokémons).</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm text-center p-4">
+            <h1 class="mb-3">🤝</h1>
+            <h5 class="fw-bold">Combine os Dois!</h5>
+            <p class="text-muted">Na vida real, a maioria dos apps usa AMBOS: dados próprios no banco + dados de APIs externas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box mt-4">
+        <h5 class="fw-bold mb-2">💡 No nosso Pokémon Trading App usamos AMBOS:</h5>
+        <ul class="mb-0">
+          <li><strong>Dados locais (MySQL):</strong> Usuários, coleção pessoal, trocas, vitórias → dados que NÓS criamos e gerenciamos</li>
+          <li><strong>API externa (PokeAPI):</strong> Descrições, sprites HD, stats oficiais, cadeia de evolução → dados que JÁ EXISTEM e são mantidos por terceiros</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Como usar uma API - Passo a Passo -->
+    <section class="mb-5">
+      <h2 class="fw-bold mb-4">🚀 Como Usar uma API Externa — Passo a Passo</h2>
+
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary">1️⃣ Encontre a API</h5>
+              <p>Pesquise APIs públicas no <a href="https://github.com/public-apis/public-apis" target="_blank">GitHub Public APIs</a> ou busque no Google: "API de [tema]".</p>
+              <small class="text-muted">Ex: pokeapi.co, viacep.com.br, openweathermap.org</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary">2️⃣ Leia a Documentação</h5>
+              <p>Toda API tem docs explicando os endpoints, parâmetros e formato de resposta.</p>
+              <small class="text-muted">Ex: pokeapi.co/docs/v2 mostra todos os recursos disponíveis</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary">3️⃣ Teste no Navegador</h5>
+              <p>Cole a URL da API no navegador e veja o JSON de resposta. Entenda a estrutura dos dados.</p>
+              <small class="text-muted">Ex: cole pokeapi.co/api/v2/pokemon/pikachu no Chrome</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary">4️⃣ Use fetch() no Código</h5>
+              <p>No JavaScript (front ou back), use <code>fetch(url)</code> com <code>async/await</code> para consumir os dados.</p>
+              <small class="text-muted">Sempre trate erros com try/catch!</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary">5️⃣ Extraia o que Precisa</h5>
+              <p>A API retorna MUITOS dados. Navegue o JSON e extraia apenas as propriedades necessárias.</p>
+              <small class="text-muted">Ex: data.sprites.other['official-artwork'].front_default</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary">6️⃣ Renderize na Interface</h5>
+              <p>Use os dados obtidos para montar o HTML dinamicamente com JavaScript (DOM manipulation).</p>
+              <small class="text-muted">Ex: container.innerHTML += `&lt;img src="${sprite}"&gt;`</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rodapé -->
+    <div class="text-center py-4">
+      <a href="/" class="btn btn-danger me-2">← Voltar ao App</a>
+      <a href="/slides" class="btn btn-dark">📊 Ver Slides</a>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ========================================================================
+    // DADOS LOCAIS (simulando o que tínhamos antes)
+    // ========================================================================
+    const DADOS_LOCAIS = {
+      pikachu: {
+        nome: 'Pikachu', tipo: 'Elétrico', ataque: 55, hp: 35,
+        descricao: 'Quando vários destes Pokémon se reúnem, a eletricidade deles pode causar tempestades de raios.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
+      },
+      bulbasaur: {
+        nome: 'Bulbasaur', tipo: 'Planta', ataque: 49, hp: 45,
+        descricao: 'Uma semente estranha foi plantada em suas costas ao nascer. A planta brota e cresce com ele.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
+      },
+      charmander: {
+        nome: 'Charmander', tipo: 'Fogo', ataque: 52, hp: 39,
+        descricao: 'A chama em sua cauda indica sua força vital. Se ele estiver saudável, a chama queima intensamente.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png'
+      },
+      squirtle: {
+        nome: 'Squirtle', tipo: 'Água', ataque: 48, hp: 44,
+        descricao: 'Após nascer, suas costas incham e endurecem em uma carapaça. Ele espirra água com força pela boca.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png'
+      },
+      eevee: {
+        nome: 'Eevee', tipo: 'Normal', ataque: 55, hp: 55,
+        descricao: 'Possui um código genético irregular que permite evoluir em múltiplas formas.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png'
+      },
+      gengar: {
+        nome: 'Gengar', tipo: 'Fantasma', ataque: 65, hp: 60,
+        descricao: 'Esconde-se na sombra das pessoas. A queda de temperatura que você sente é sinal de sua presença.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png'
+      },
+      dragonite: {
+        nome: 'Dragonite', tipo: 'Dragão', ataque: 134, hp: 91,
+        descricao: 'Dizem que ele voa pelos oceanos. Sua inteligência rivaliza com a de humanos.',
+        sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png'
+      }
+    };
+
+    // ========================================================================
+    // CARREGAR DADOS LOCAIS
+    // ========================================================================
+    function carregarLocal() {
+      const select = document.getElementById('pokemon-selector');
+      const nome = select.value;
+      const poke = DADOS_LOCAIS[nome];
+
+      if (!poke) {
+        document.getElementById('display-local').innerHTML = '<p class="text-danger">Pokémon não encontrado nos dados locais!</p>';
+        return;
+      }
+
+      document.getElementById('display-local').innerHTML = `
+        <img src="${poke.sprite}" alt="${poke.nome}" style="width:96px;height:96px;image-rendering:pixelated;">
+        <h5 class="fw-bold mt-2">${poke.nome}</h5>
+        <span class="badge tag-local mb-2">${poke.tipo}</span>
+        <p class="text-muted small px-3 fst-italic">"${poke.descricao}"</p>
+        <div class="d-flex gap-3">
+          <small><strong>Ataque:</strong> ${poke.ataque}</small>
+          <small><strong>HP:</strong> ${poke.hp}</small>
+        </div>
+        <hr class="w-75">
+        <small class="text-muted">
+          📦 Fonte: <code>const DADOS_LOCAIS = {...}</code><br>
+          ⚡ Tempo: ~0ms (memória local)<br>
+          📊 Dados: nome, tipo, ataque, hp, descrição básica<br>
+          🖼️ Sprite: 96x96px (pixelado)
+        </small>
+      `;
+    }
+
+    // ========================================================================
+    // CARREGAR DADOS DA POKEAPI
+    // ========================================================================
+    async function carregarAPI() {
+      const select = document.getElementById('pokemon-selector');
+      const nome = select.value;
+      const display = document.getElementById('display-api');
+
+      display.innerHTML = '<div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Consultando PokeAPI...</p>';
+
+      const inicio = performance.now();
+
+      try {
+        const res = await fetch(`/api/pokemon/descricao/${nome}`);
+        const data = await res.json();
+        const tempo = Math.round(performance.now() - inicio);
+
+        const statsHtml = data.stats ? Object.entries(data.stats).map(([key, val]) => {
+          const pct = Math.min((val / 150) * 100, 100);
+          const labels = { hp:'HP', attack:'Atk', defense:'Def', 'special-attack':'SpA', 'special-defense':'SpD', speed:'Spd' };
+          return `<div class="d-flex align-items-center mb-1">
+            <small style="width:35px">${labels[key]||key}</small>
+            <div class="progress flex-grow-1" style="height:8px">
+              <div class="progress-bar bg-primary" style="width:${pct}%"></div>
+            </div>
+            <small class="ms-1 fw-bold" style="width:25px">${val}</small>
+          </div>`;
+        }).join('') : '';
+
+        const tiposHtml = data.tipos ? data.tipos.map(t =>
+          `<span class="badge bg-primary me-1">${t}</span>`
+        ).join('') : '';
+
+        const habHtml = data.habilidades ? data.habilidades.map(h =>
+          `<span class="badge bg-secondary me-1 text-capitalize">${h.replace('-',' ')}</span>`
+        ).join('') : '';
+
+        display.innerHTML = `
+          <img src="${data.sprite}" alt="${data.nome}" style="width:150px;height:150px;">
+          <h5 class="fw-bold mt-2 text-capitalize">${data.nome}</h5>
+          <div class="mb-2">${tiposHtml}</div>
+          <p class="text-muted small px-2 fst-italic">"${data.descricao}"</p>
+          <div class="w-100 px-3">${statsHtml}</div>
+          <div class="mt-2">${habHtml}</div>
+          <small class="text-muted mt-2 d-block">Peso: ${data.peso}kg | Altura: ${data.altura}m</small>
+          <hr class="w-75">
+          <small class="text-muted">
+            📦 Fonte: <code>fetch("pokeapi.co/api/v2/...")</code><br>
+            ⚡ Tempo: ~${tempo}ms (requisição HTTP)<br>
+            📊 Dados: stats completos, habilidades, peso, altura<br>
+            🖼️ Sprite: Official Artwork HD (475x475px)
+          </small>
+        `;
+      } catch (e) {
+        display.innerHTML = '<p class="text-danger">Erro ao consultar a PokeAPI</p>';
+      }
+    }
+
+    // ========================================================================
+    // CARREGAR AMBOS
+    // ========================================================================
+    function carregarAmbos() {
+      carregarLocal();
+      carregarAPI();
+    }
+  </script>
+</body>
+</html>
