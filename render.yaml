@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pokemon-fullstack-course
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: SESSION_SECRET
+        generateValue: true

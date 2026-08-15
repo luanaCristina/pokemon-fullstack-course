@@ -335,6 +335,93 @@ const descricao = speciesData.flavor_text_entries
 
 ---
 
+## 🌍 Acesso Online (Deploy)
+
+A aplicação está disponível online para os alunos acessarem de qualquer lugar.
+
+> As funcionalidades que não dependem de banco de dados (Pokédex, Slides, Comparativo, Jogo) funcionam 100% online. O CRUD com MySQL funciona localmente.
+
+---
+
+## 🚀 Como Fazer Deploy (Publicar Online)
+
+### Opção 1: Render.com (Gratuito)
+
+```bash
+# 1. Crie uma conta em https://render.com (pode usar GitHub)
+
+# 2. Clique em "New" → "Web Service"
+
+# 3. Conecte seu repositório GitHub:
+#    github.com/luanaCristina/pokemon-fullstack-course
+
+# 4. Configure:
+#    - Name: pokemon-fullstack-course
+#    - Runtime: Node
+#    - Build Command: npm install
+#    - Start Command: node server.js
+
+# 5. Clique em "Create Web Service"
+
+# 6. Em ~2 minutos, sua URL estará ativa:
+#    https://pokemon-fullstack-course.onrender.com
+```
+
+### Opção 2: Railway.app (Gratuito com limites)
+
+```bash
+# 1. Acesse https://railway.app e conecte com GitHub
+
+# 2. Clique em "New Project" → "Deploy from GitHub repo"
+
+# 3. Selecione: pokemon-fullstack-course
+
+# 4. Railway detecta Node.js automaticamente
+
+# 5. Em "Settings", configure a porta:
+#    PORT = 3000
+
+# 6. Clique em "Deploy" e aguarde a URL
+```
+
+### O que funciona online (sem MySQL)?
+
+| Funcionalidade | Online? | Motivo |
+|---------------|---------|--------|
+| 📊 Slides (apresentação) | ✅ Sim | Estático, sem banco |
+| 🎮 Pokédex Interativa | ✅ Sim | Consome PokeAPI direto |
+| 📚 Comparativo Local vs API | ✅ Sim | Estático + PokeAPI |
+| 🎮 Jogo "Quem é esse Pokémon?" | ✅ Sim | Consome PokeAPI direto |
+| 🔐 Login/Cadastro | ✅ Sim* | *Modo in-memory (perde ao reiniciar) |
+| 📦 Coleção e Batalha | ✅ Sim* | *Modo in-memory |
+| 🗄️ Dados persistentes | ❌ Não | Precisa de MySQL real |
+
+---
+
+## 💻 Como Rodar Localmente (Modo Completo)
+
+```bash
+# Clone
+git clone https://github.com/luanaCristina/pokemon-fullstack-course.git
+cd pokemon-fullstack-course
+
+# Instale dependências
+npm install
+
+# Crie o banco (precisa MySQL rodando)
+mysql -u root -p < database/schema.sql
+
+# Inicie com hot-reload
+npm run dev
+
+# Acesse
+# App:    http://localhost:3000
+# Slides: http://localhost:3000/slides
+# Pokédex: http://localhost:3000/pokedex.html
+```
+
+---
+
 ## 📄 Licença
 
 MIT License — Livre para uso educacional.
