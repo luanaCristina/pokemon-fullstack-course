@@ -160,6 +160,24 @@
 
   <!-- Modal Editar Perfil -->
   <div class="modal fade" id="modalPerfil" tabindex="-1">
+
+  <!-- Modal Descrição do Pokémon -->
+  <div class="modal fade" id="modalDescricao" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title" id="descricao-titulo">📖 Descrição</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="descricao-sprite" src="" alt="" style="width:120px;height:120px;object-fit:contain;">
+          <h4 id="descricao-nome" class="mt-2 fw-bold"></h4>
+          <span id="descricao-tipo" class="badge rounded-pill mb-3"></span>
+          <p id="descricao-texto" class="text-muted fs-5 mt-2" style="font-style:italic;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">

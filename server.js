@@ -39,6 +39,56 @@ const POKEMONS_INICIAIS = [
   { nome: 'Geodude', tipo: 'Pedra', ataque: 80, hp: 40, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/74.png' }
 ];
 
+// Descrições dos Pokémons
+const DESCRICOES_POKEMON = {
+  'Bulbasaur': 'Uma semente estranha foi plantada em suas costas ao nascer. A planta brota e cresce com ele.',
+  'Ivysaur': 'Quando a flor em suas costas começa a liberar um aroma adocicado, é sinal de que vai florescer em breve.',
+  'Venusaur': 'A planta floresce ao absorver energia solar. Ele é frequentemente encontrado em busca de luz solar.',
+  'Charmander': 'A chama em sua cauda indica sua força vital. Se ele estiver saudável, a chama queima intensamente.',
+  'Charmeleon': 'Tem um temperamento feroz. Na emoção da batalha, expele chamas azuladas intensas.',
+  'Charizard': 'Cospe fogo tão quente que derrete rochas. É conhecido por causar incêndios florestais sem querer.',
+  'Squirtle': 'Após nascer, suas costas incham e endurecem em uma carapaça. Ele espirra água com força pela boca.',
+  'Wartortle': 'É reconhecido como um símbolo de longevidade. Suas orelhas e cauda peludas servem para equilíbrio.',
+  'Blastoise': 'Ele esmaga seus inimigos com seu peso corporal. Em apuros, ele se esconde dentro de sua carapaça.',
+  'Pikachu': 'Quando vários destes Pokémon se reúnem, a eletricidade deles pode causar tempestades de raios.',
+  'Raichu': 'Sua cauda longa serve como fio-terra para se proteger de sua própria eletricidade de alta voltagem.',
+  'Eevee': 'Possui um código genético irregular que permite evoluir em múltiplas formas de acordo com seu ambiente.',
+  'Flareon': 'Possui uma bolsa de fogo dentro do corpo. Após uma respiração profunda, solta chamas de 1700°C.',
+  'Jigglypuff': 'Quando seus olhos grandes e redondos se iluminam, ele canta uma melodia misteriosa que adormece todos.',
+  'Wigglytuff': 'Seu corpo é muito elástico. Quando inspira profundamente, pode inflar-se até tamanhos impressionantes.',
+  'Geodude': 'Encontrado frequentemente em caminhos de montanha. Se você pisar em um por engano, ele fica furioso.',
+  'Graveler': 'Ele rola montanha abaixo para se mover. Ele esmaga tudo que está em seu caminho sem parar.',
+  'Golem': 'Seu corpo é coberto por uma armadura rochosa extremamente dura. Ele troca de pele uma vez por ano.',
+  'Rattata': 'Cauteloso ao extremo, mesmo dormindo ele mexe as orelhas para ouvir sons ao redor.',
+  'Pidgey': 'Um Pokémon muito dócil. Se atacado, frequentemente atira areia para se proteger ao invés de revidar.',
+  'Zubat': 'Forma colônias em cavernas escuras. Usa ondas ultrassônicas para detectar obstáculos durante o voo.',
+  'Machop': 'Treina praticando todas as formas de artes marciais. Seu corpo é completamente feito de músculos.',
+  'Abra': 'Dorme 18 horas por dia. Mesmo dormindo, consegue sentir perigo e se teletransportar para fugir.',
+  'Gastly': 'Nascido de gases venenosos. Pode derrubar um elefante indiano em 2 segundos com seu gás tóxico.',
+  'Gengar': 'Esconde-se na sombra das pessoas. A queda de temperatura que você sente é sinal de sua presença.',
+  'Mega Gengar': 'Ao mega-evoluir, seu poder paranormal se intensifica. Ele pode amaldiçoar qualquer um com um olhar.',
+  'Onix': 'Conforme cresce, seu corpo rochoso endurece como diamante. Pode cavar túneis a 80km/h.',
+  'Scyther': 'Com suas garras afiadas como foices, pode cortar troncos grossos em um único golpe.',
+  'Magikarp': 'Famoso por ser inútil. Só consegue usar Splash. No entanto, é na verdade muito resistente.',
+  'Dratini': 'Um Pokémon místico e raro. Troca de pele constantemente e se esconde atrás de cascatas.',
+  'Dragonite': 'Dizem que ele voa pelos oceanos. Sua inteligência rivaliza com a de humanos.',
+  'Dragonite Mega': 'Uma forma lendária que poucos treinadores já presenciaram. Seu poder é imensurável.',
+  'Mewtwo': 'Criado por manipulação genética. Porém, os cientistas falharam em dotá-lo de um coração bondoso.',
+  'Mewtwo Mega': 'Na mega-evolução, todo seu poder psíquico se concentra. Capaz de destruir montanhas com o pensamento.'
+};
+
+// GET /api/pokemon/descricao/:nome - Retorna descrição de um Pokémon
+app.get('/api/pokemon/descricao/:nome', (req, res) => {
+  const nome = req.params.nome;
+  const descricao = DESCRICOES_POKEMON[nome];
+
+  if (descricao) {
+    return res.json({ nome, descricao });
+  }
+
+  res.json({ nome, descricao: 'Descrição não disponível para este Pokémon.' });
+});
+
 // ============================================================================
 // ROTAS DE AUTENTICAÇÃO
 // ============================================================================

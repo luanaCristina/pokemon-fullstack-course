@@ -170,6 +170,7 @@ async function carregarMeusPokemons() {
               </div>
             </div>
             <div class="card-footer bg-white border-0 pb-3 d-flex justify-content-center gap-2">
+              <button class="btn btn-info btn-sm text-white" onclick="verDescricao('${poke.nome}', '${poke.tipo}', '${poke.sprite_url}')">📖 Descrição</button>
               <button class="btn btn-primary btn-sm" onclick="subirNivel(${poke.id}, ${poke.nivel}, ${poke.ataque}, ${poke.hp})">⚡ Treinar</button>
               <button class="btn btn-outline-danger btn-sm" onclick="liberarPokemon(${poke.id})">🗑️ Liberar</button>
             </div>
@@ -462,6 +463,32 @@ async function evoluirPokemon(pokemonId) {
   }
 }
 
+
+// ============================================================================
+// DESCRIÇÃO DO POKÉMON
+// ============================================================================
+
+async function verDescricao(nome, tipo, sprite) {
+  try {
+    const res = await fetch(`/api/pokemon/descricao/${encodeURIComponent(nome)}`);
+    const data = await res.json();
+
+    document.getElementById('descricao-titulo').textContent = `📖 ${nome}`;
+    document.getElementById('descricao-nome').textContent = nome;
+    document.getElementById('descricao-sprite').src = sprite;
+    document.getElementById('descricao-sprite').alt = nome;
+    document.getElementById('descricao-texto').textContent = data.descricao;
+
+    const badgeEl = document.getElementById('descricao-tipo');
+    badgeEl.textContent = tipo;
+    badgeEl.className = `badge ${getBadgeClass(tipo)} rounded-pill px-3 py-2`;
+
+    const modal = new bootstrap.Modal(document.getElementById('modalDescricao'));
+    modal.show();
+  } catch (e) {
+    console.error('Erro ao buscar descrição:', e);
+  }
+}
 
 // ============================================================================
 // PERFIL DO USUÁRIO
